@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [ master, tools ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
