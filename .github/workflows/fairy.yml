@@ -15,7 +15,6 @@ jobs:
     env:
       COMPILER: ${{ matrix.config.compiler }}
       COMP: ${{ matrix.config.comp }}
-      CXXFLAGS: "-Werror"
     strategy:
       matrix:
         config:
