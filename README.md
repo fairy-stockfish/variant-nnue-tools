@@ -1,3 +1,7 @@
+# Variant NNUE training data generator
+
+This is a variant NNUE training data generator based on [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish) to generate data for the [variant NNUE trainer](https://github.com/ianfab/variant-nnue-pytorch). See the [wiki of the training code](https://github.com/ianfab/variant-nnue-pytorch/wiki/Training-data-generation) for more information.
+
 # Fairy-Stockfish
 
 ## Overview
