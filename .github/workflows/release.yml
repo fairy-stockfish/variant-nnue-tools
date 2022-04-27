@@ -2,19 +2,22 @@ name: Release
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, tools ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, tools ]
 
 jobs:
   windows:
     strategy:
       matrix:
         arch: ["x86-64-bmi2", "x86-64-modern", "x86-64"]
-    runs-on: windows-2022
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: install mingw w64
+        run: sudo apt install mingw-w64
 
       - name: make
         run: cd src && make clean && make -j build COMP=mingw ARCH=${{ matrix.arch }} EXE=fairy-stockfish_${{ matrix.arch }}.exe && strip fairy-stockfish_${{ matrix.arch }}.exe
