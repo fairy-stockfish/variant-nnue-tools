@@ -1944,10 +1944,11 @@ void MainThread::check_time() {
   if (ponder)
       return;
 
-  if (   rootPos.two_boards()
+  // rootPos is uninitialized for MCTS search, so skip this check
+  /*if (   rootPos.two_boards()
       && Time.elapsed() < Limits.time[rootPos.side_to_move()] - 1000
       && (Partner.sitRequested || (Partner.weDead && !Partner.partnerDead) || Partner.weVirtualWin))
-      return;
+      return;*/
 
   if (   (Limits.use_time_management() && (elapsed > Time.maximum() - 10 || stopOnPonderhit))
       || (Limits.movetime && elapsed >= Limits.movetime)
@@ -2951,7 +2952,13 @@ namespace Search
       Value terminal_value(Position& pos) const {
 
         if (MoveList<LEGAL>(pos).size() == 0)
-          return pos.checkers() ? VALUE_MATE : -VALUE_MATE;;
+        {
+          Value variantResult;
+          Value result =  pos.is_game_end(variantResult) ? variantResult
+                        : pos.checkers()                 ? pos.checkmate_value()
+                                                         : pos.stalemate_value();
+          return result;
+        }
 
         if (ply >= MAX_PLY - 2 || pos.is_optional_game_end())
           return VALUE_DRAW;
@@ -3206,7 +3213,7 @@ namespace Search
             pos.this_thread()->continuationHistory
               [stack[ply].inCheck]
               [pos.capture_or_promotion(move)]
-              [pos.moved_piece(move)]
+              [history_slot(pos.moved_piece(move))]
               [to_sq(move)]
           );
         stack[ply].staticEval = parentNode.leafSearchEval;
