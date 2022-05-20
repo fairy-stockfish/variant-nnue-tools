@@ -6357,7 +6357,7 @@ namespace binpack
 
         struct PackedSfen
         {
-            uint8_t data[64];
+            uint8_t data[DATA_SIZE / 8];
         };
 
         struct PackedSfenValue
@@ -6387,7 +6387,7 @@ namespace binpack
 
             // 32 + 2 + 2 + 2 + 1 + 1 = 40bytes
         };
-        static_assert(sizeof(PackedSfenValue) == 72);
+        static_assert(sizeof(PackedSfenValue) == DATA_SIZE / 8 + 8);
         // Class that handles bitstream
 
         // useful when doing aspect encoding
@@ -7646,7 +7646,7 @@ namespace binpack
         for(;;)
         {
             inputFile.read(reinterpret_cast<char*>(&psv), sizeof(psv));
-            if (inputFile.gcount() != 72)
+            if (inputFile.gcount() != DATA_SIZE / 8 + 8)
             {
                 break;
             }
@@ -7737,7 +7737,7 @@ namespace binpack
         for(;;)
         {
             inputFile.read(reinterpret_cast<char*>(&psv), sizeof(psv));
-            if (inputFile.gcount() != 72)
+            if (inputFile.gcount() != DATA_SIZE / 8 + 8)
             {
                 break;
             }
@@ -7929,7 +7929,7 @@ namespace binpack
         for(;;)
         {
             inputFile.read(reinterpret_cast<char*>(&psv), sizeof(psv));
-            if (inputFile.gcount() != 72)
+            if (inputFile.gcount() != DATA_SIZE / 8 + 8)
             {
                 break;
             }
