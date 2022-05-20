@@ -111,7 +111,7 @@ void on_variant_change(const Option &o) {
     << "#define PIECE_COUNT " << v->nnueMaxPieces << std::endl
     << "#define POCKETS " << (v->nnueUsePockets ? "true" : "false") << std::endl
     << "#define KING_SQUARES " << v->nnueKingSquare << std::endl
-    << "#define DATA_SIZE " << dataSize << std::endl;
+    << "#define DATA_SIZE " << DATA_SIZE << std::endl;
 
     std::cerr << std::endl << "variant.py:" << std::endl
     << "RANKS = " << v->maxRank + 1 << std::endl
