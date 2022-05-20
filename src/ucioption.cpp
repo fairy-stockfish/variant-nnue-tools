@@ -100,7 +100,7 @@ void on_variant_change(const Option &o) {
                         + v->nnueUsePockets * v->pieceTypes.size() * 2 * 5 + 50 > 512 ? 1024 : 512;
 
     if (dataSize > DATA_SIZE)
-        std::cerr << "Warning: Recommended training data size " << dataSize
+        std::cerr << std::endl << "Warning: Recommended training data size " << dataSize
                   << " not compatible with current version. "
                   << "Please recompile with largedata=yes" << std::endl << std::endl;
 
