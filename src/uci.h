@@ -94,12 +94,26 @@ std::string wdl(Value v, int ply);
 Move to_move(const Position& pos, std::string& str);
 void setoption(const std::string& name, const std::string& value);
 
-std::string option_name(std::string name, std::string protocol);
+std::string option_name(std::string name);
 bool is_valid_option(UCI::OptionsMap& options, std::string& name);
 
 } // namespace UCI
 
 extern UCI::OptionsMap Options;
+
+enum Protocol {
+  UCI_GENERAL,
+  USI,
+  UCCI,
+  UCI_CYCLONE,
+  XBOARD,
+};
+
+constexpr bool is_uci_dialect(Protocol p) {
+  return p != XBOARD;
+}
+
+extern Protocol CurrentProtocol;
 
 } // namespace Stockfish
 
