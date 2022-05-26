@@ -77,7 +77,7 @@ std::ostream& operator<<(std::ostream& os, const Position& pos) {
               os << " *";
           else
               os << "  ";
-          if (pos.piece_drops() || pos.seirawan_gating() || pos.arrow_gating())
+          if (!pos.variant()->freeDrops && (pos.piece_drops() || pos.seirawan_gating() || pos.arrow_gating()))
           {
               os << " [";
               for (PieceType pt = KING; pt >= PAWN; --pt)
@@ -698,7 +698,7 @@ string Position::fen(bool sfen, bool showPromoted, int countStarted, std::string
   }
 
   // pieces in hand
-  if (piece_drops() || seirawan_gating() || arrow_gating())
+  if (!variant()->freeDrops && (piece_drops() || seirawan_gating() || arrow_gating()))
   {
       ss << '[';
       if (holdings != "-")
@@ -1169,7 +1169,7 @@ bool Position::pseudo_legal(const Move m) const {
       return   piece_drops()
             && pc != NO_PIECE
             && color_of(pc) == us
-            && (count_in_hand(us, in_hand_piece_type(m)) > 0 || (two_boards() && allow_virtual_drop(us, type_of(pc))))
+            && (can_drop(us, in_hand_piece_type(m)) || (two_boards() && allow_virtual_drop(us, type_of(pc))))
             && (drop_region(us, type_of(pc)) & ~pieces() & to)
             && (   type_of(pc) == in_hand_piece_type(m)
                 || (drop_promoted() && type_of(pc) == promoted_piece_type(in_hand_piece_type(m))));
@@ -2320,8 +2320,26 @@ bool Position::is_optional_game_end(Value& result, int ply, int countStarted) co
   // n-move rule
   if (n_move_rule() && st->rule50 > (2 * n_move_rule() - 1) && (!checkers() || MoveList<LEGAL>(*this).size()))
   {
-      result = var->materialCounting ? convert_mate_value(material_counting_result(), ply) : VALUE_DRAW;
-      return true;
+      int offset = 0;
+      if (var->chasingRule == AXF_CHASING && st->pliesFromNull >= 20)
+      {
+          int end = std::min(st->rule50, st->pliesFromNull);
+          StateInfo* stp = st;
+          int checkThem = bool(stp->checkersBB);
+          int checkUs = bool(stp->previous->checkersBB);
+          for (int i = 2; i < end; i += 2)
+          {
+              stp = stp->previous->previous;
+              checkThem += bool(stp->checkersBB);
+              checkUs += bool(stp->previous->checkersBB);
+          }
+          offset = 2 * std::max(std::max(checkThem, checkUs) - 10, 0) + 20 * (CurrentProtocol == UCCI || CurrentProtocol == UCI_CYCLONE);
+      }
+      if (st->rule50 - offset > (2 * n_move_rule() - 1))
+      {
+          result = var->materialCounting ? convert_mate_value(material_counting_result(), ply) : VALUE_DRAW;
+          return true;
+      }
   }
 
   // n-fold repetition
