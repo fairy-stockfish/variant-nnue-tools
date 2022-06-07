@@ -310,7 +310,7 @@ namespace Stockfish::Tools
                 const int depth = params.search_depth_min + (int)prng.rand(params.search_depth_max - params.search_depth_min + 1);
 
                 // Starting search calls init_for_search
-                auto [eval_value, eval_pv] = Search::search(pos, pos.checkers() ? 0 : -1);
+                auto [eval_value, eval_pv] = Search::search(pos, pos.checkers() || pos.is_immediate_game_end() ? 0 : -1);
                 auto [qsearch_value, qsearch_pv] = Search::search(pos, 0);
                 auto [search_value, search_pv] = Search::search(pos, depth, 1, params.nodes);
 
