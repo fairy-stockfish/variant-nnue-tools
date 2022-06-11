@@ -89,6 +89,7 @@ namespace Stockfish::Tools
             bool ignore_flag_fen = false;
             bool ignore_flag_move = false;
             bool ignore_flag_ply = false;
+            const Variant* v = variants.find(Options["UCI_Variant"])->second;
             while (std::getline(ifs, line)) {
                 std::stringstream ss(line);
                 std::string token;
@@ -97,7 +98,7 @@ namespace Stockfish::Tools
                 if (token == "fen") {
                     states = StateListPtr(new std::deque<StateInfo>(1)); // Drop old and create a new one
                     std::string input_fen = line.substr(4);
-                    tpos.set(tpos.variant(), input_fen, false, &states->back(), Threads.main());
+                    tpos.set(v, input_fen, false, &states->back(), Threads.main());
                     if (check_invalid_fen && !fen_is_ok(tpos, input_fen)) {
                         ignore_flag_fen = true;
                         filtered_size_fen++;
