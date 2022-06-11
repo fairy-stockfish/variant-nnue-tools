@@ -166,6 +166,10 @@ namespace Stockfish::Tools {
         return Square(s - rank_of(s) * (FILE_MAX - pos.max_file()));
     }
 
+    inline Square from_variant_square(Square s, const Position& pos) {
+        return Square(s + s / pos.files() * (FILE_MAX - pos.max_file()));
+    }
+
     // Pack sfen and store in data[64].
     void SfenPacker::pack(const Position& pos)
     {
@@ -296,7 +300,7 @@ namespace Stockfish::Tools {
 
         // First the position of the ball
         for (auto c : Colors)
-            pos.board[stream.read_n_bit(7)] = make_piece(c, pos.nnue_king());
+            pos.board[from_variant_square(Square(stream.read_n_bit(7)), pos)] = make_piece(c, pos.nnue_king());
 
         // Piece placement
         for (Rank r = pos.max_rank(); r >= RANK_1; --r)
