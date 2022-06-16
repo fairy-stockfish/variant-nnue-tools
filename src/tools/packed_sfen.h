@@ -7,7 +7,7 @@
 namespace Stockfish::Tools {
 
     // packed sfen
-    struct PackedSfen { std::uint8_t data[64]; };
+    struct PackedSfen { std::uint8_t data[DATA_SIZE / 8]; };
 
     // Structure in which PackedSfen and evaluation value are integrated
     // If you write different contents for each option, it will be a problem when reusing the teacher game
