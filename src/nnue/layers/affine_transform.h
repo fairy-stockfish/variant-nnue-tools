@@ -167,7 +167,11 @@ namespace Stockfish::Eval::NNUE::Layers {
 
       [[maybe_unused]] auto m256_add_dpbusd_epi32 = [=](__m256i& acc, __m256i a, __m256i b) {
 #if defined (USE_VNNI)
+#if defined(_MSC_VER)
+        acc = _mm256_dpbusd_avx_epi32(acc, a, b);
+#else
         acc = _mm256_dpbusd_epi32(acc, a, b);
+#endif
 #else
         __m256i product0 = _mm256_maddubs_epi16(a, b);
         product0 = _mm256_madd_epi16(product0, Ones256);
@@ -178,10 +182,17 @@ namespace Stockfish::Eval::NNUE::Layers {
       [[maybe_unused]] auto m256_add_dpbusd_epi32x4 = [=](__m256i& acc, __m256i a0, __m256i b0, __m256i a1, __m256i b1,
                                                                         __m256i a2, __m256i b2, __m256i a3, __m256i b3) {
 #if defined (USE_VNNI)
+#if defined(_MSC_VER)
+        acc = _mm256_dpbusd_avx_epi32(acc, a0, b0);
+        acc = _mm256_dpbusd_avx_epi32(acc, a1, b1);
+        acc = _mm256_dpbusd_avx_epi32(acc, a2, b2);
+        acc = _mm256_dpbusd_avx_epi32(acc, a3, b3);
+#else
         acc = _mm256_dpbusd_epi32(acc, a0, b0);
         acc = _mm256_dpbusd_epi32(acc, a1, b1);
         acc = _mm256_dpbusd_epi32(acc, a2, b2);
         acc = _mm256_dpbusd_epi32(acc, a3, b3);
+#endif
 #else
         __m256i product0 = _mm256_maddubs_epi16(a0, b0);
         __m256i product1 = _mm256_maddubs_epi16(a1, b1);
