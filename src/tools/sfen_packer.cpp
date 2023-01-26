@@ -173,7 +173,7 @@ namespace Stockfish::Tools {
     // Pack sfen and store in data[64].
     void SfenPacker::pack(const Position& pos)
     {
-        memset(data, 0, 64 /* 512bit */);
+        memset(data, 0, DATA_SIZE / 8 /* 512bit */);
         stream.set_data(data);
 
         // turn
@@ -199,7 +199,7 @@ namespace Stockfish::Tools {
 
         for(auto c: Colors)
             for (PieceType pt : pos.piece_types())
-                stream.write_n_bit(pos.count_in_hand(c, pt), 5);
+                stream.write_n_bit(pos.count_in_hand(c, pt), DATA_SIZE > 512 ? 7 : 5);
 
         // TODO(someone): Support chess960.
         stream.write_one_bit(pos.can_castle(WHITE_OO));
@@ -230,7 +230,7 @@ namespace Stockfish::Tools {
         // This bit is just ignored by the old parsers.
         stream.write_n_bit(pos.state()->rule50 >> 6, 1);
 
-        assert(stream.get_cursor() <= 512);
+        assert(stream.get_cursor() <= DATA_SIZE);
     }
 
     // Output the board pieces to stream.
@@ -391,7 +391,7 @@ namespace Stockfish::Tools {
         // handle also common incorrect FEN with fullmove = 0.
         pos.gamePly = std::max(2 * (pos.gamePly - 1), 0) + (pos.sideToMove == BLACK);
 
-        assert(stream.get_cursor() <= 512);
+        assert(stream.get_cursor() <= DATA_SIZE);
 
         pos.chess960 = false;
         pos.thisThread = th;

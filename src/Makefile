@@ -365,6 +365,12 @@ ifneq ($(all),no)
 	CXXFLAGS += -DALLVARS
 endif
 
+ifeq ($(largedata),yes)
+	CXXFLAGS += -DDATA_SIZE=1024
+else
+	CXXFLAGS += -DDATA_SIZE=512
+endif
+
 ifeq ($(COMP),)
 	COMP=gcc
 endif

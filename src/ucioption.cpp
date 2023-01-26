@@ -96,13 +96,22 @@ void on_variant_change(const Option &o) {
 
     const Variant* v = variants.find(o)->second;
 
+    const int dataSize = (v->maxFile + 1) * (v->maxRank + 1) + v->nnueMaxPieces * 5
+                        + v->nnueUsePockets * v->pieceTypes.size() * 2 * 5 + 50 > 512 ? 1024 : 512;
+
+    if (dataSize > DATA_SIZE)
+        std::cerr << std::endl << "Warning: Recommended training data size " << dataSize
+                  << " not compatible with current version. "
+                  << "Please recompile with largedata=yes" << std::endl << std::endl;
+
     std::cerr << "lib/nnue_training_data_formats.h:" << std::endl
     << "#define FILES " << v->maxFile + 1 << std::endl
     << "#define RANKS " << v->maxRank + 1 << std::endl
     << "#define PIECE_TYPES " << v->pieceTypes.size() << std::endl
     << "#define PIECE_COUNT " << v->nnueMaxPieces << std::endl
     << "#define POCKETS " << (v->nnueUsePockets ? "true" : "false") << std::endl
-    << "#define KING_SQUARES " << v->nnueKingSquare << std::endl;
+    << "#define KING_SQUARES " << v->nnueKingSquare << std::endl
+    << "#define DATA_SIZE " << DATA_SIZE << std::endl;
 
     std::cerr << std::endl << "variant.py:" << std::endl
     << "RANKS = " << v->maxRank + 1 << std::endl
