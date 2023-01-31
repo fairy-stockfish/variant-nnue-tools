@@ -97,7 +97,7 @@ void on_variant_change(const Option &o) {
     const Variant* v = variants.find(o)->second;
 
     const int dataSize = (v->maxFile + 1) * (v->maxRank + 1) + v->nnueMaxPieces * 5
-                        + v->nnueUsePockets * v->pieceTypes.size() * 2 * 5 + 50 > 512 ? 1024 : 512;
+                        + v->pieceTypes.size() * 2 * 5 + 50 > 512 ? 1024 : 512;
 
     if (dataSize > DATA_SIZE)
         std::cerr << std::endl << "Warning: Recommended training data size " << dataSize
