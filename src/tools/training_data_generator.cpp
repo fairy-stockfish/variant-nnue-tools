@@ -388,8 +388,9 @@ namespace Stockfish::Tools
                 if (pos.two_boards())
                 {
                     std::string fen = pos.fen();
-                    for (PieceType pt : pos.piece_types())
+                    for (PieceSet ps = pos.piece_types(); ps;)
                     {
+                        PieceType pt = pop_lsb(ps);
                         if (pt == KING || int(prng.rand(PieceValue[EG][pt])) > 20 + (pos.variant()->nnueMaxPieces / 2 - pos.count<ALL_PIECES>() - pos.count_in_hand(ALL_PIECES)))
                             continue;
                         for (Color c : { WHITE, BLACK })

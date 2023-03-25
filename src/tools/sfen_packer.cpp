@@ -198,8 +198,8 @@ namespace Stockfish::Tools {
         }
 
         for(auto c: Colors)
-            for (PieceType pt : pos.piece_types())
-                stream.write_n_bit(pos.count_in_hand(c, pt), DATA_SIZE > 512 ? 7 : 5);
+            for (PieceSet ps = pos.piece_types(); ps;)
+                stream.write_n_bit(pos.count_in_hand(c, pop_lsb(ps)), DATA_SIZE > 512 ? 7 : 5);
 
         // TODO(someone): Support chess960.
         stream.write_one_bit(pos.can_castle(WHITE_OO));
@@ -207,12 +207,13 @@ namespace Stockfish::Tools {
         stream.write_one_bit(pos.can_castle(BLACK_OO));
         stream.write_one_bit(pos.can_castle(BLACK_OOO));
 
-        if (pos.ep_square() == SQ_NONE) {
+        if (!pos.ep_squares()) {
             stream.write_one_bit(0);
         }
         else {
             stream.write_one_bit(1);
-            stream.write_n_bit(static_cast<int>(to_variant_square(pos.ep_square(), pos)), 7);
+            // Additional ep squares (e.g., for berolina) are not encoded
+            stream.write_n_bit(static_cast<int>(to_variant_square(lsb(pos.ep_squares()), pos)), 7);
         }
 
         stream.write_n_bit(pos.state()->rule50, 6);
@@ -272,9 +273,12 @@ namespace Stockfish::Tools {
         // first and second flag
         Color c = (Color)stream.read_one_bit();
 
-        for(PieceType pt : pos.piece_types())
+        for(PieceSet ps = pos.piece_types(); ps;)
+        {
+            PieceType pt = pop_lsb(ps);
             if (pos.variant()->pieceIndex[pt] + 1 == pr)
                 return make_piece(c, pt);
+        }
         assert(false);
         return NO_PIECE;
     }
@@ -358,17 +362,13 @@ namespace Stockfish::Tools {
             pos.set_castling_right(BLACK, rsq);
         }
 
-        // En passant square. Ignore if no pawn capture is possible
+        // En passant square.
         if (stream.read_one_bit()) {
             Square ep_square = static_cast<Square>(stream.read_n_bit(7));
-            pos.st->epSquare = ep_square;
-
-            if (!(pos.attackers_to(pos.st->epSquare) & pos.pieces(pos.sideToMove, PAWN))
-                || !(pos.pieces(~pos.sideToMove, PAWN) & (pos.st->epSquare + pawn_push(~pos.sideToMove))))
-                pos.st->epSquare = SQ_NONE;
+            pos.st->epSquares = square_bb(ep_square);
         }
         else {
-            pos.st->epSquare = SQ_NONE;
+            pos.st->epSquares = 0;
         }
 
         // Halfmove clock

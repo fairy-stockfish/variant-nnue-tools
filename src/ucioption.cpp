@@ -49,7 +49,8 @@ namespace UCI {
 std::set<string> standard_variants = {
     "normal", "nocastle", "fischerandom", "knightmate", "3check", "makruk", "shatranj",
     "asean", "seirawan", "crazyhouse", "bughouse", "suicide", "giveaway", "losers", "atomic",
-    "capablanca", "gothic", "janus", "caparandom", "grand", "shogi", "xiangqi", "duck"
+    "capablanca", "gothic", "janus", "caparandom", "grand", "shogi", "xiangqi", "duck",
+    "berolina", "spartan"
 };
 
 void init_variant(const Variant* v) {
@@ -97,7 +98,7 @@ void on_variant_change(const Option &o) {
     const Variant* v = variants.find(o)->second;
 
     const int dataSize = (v->maxFile + 1) * (v->maxRank + 1) + v->nnueMaxPieces * 5
-                        + v->pieceTypes.size() * 2 * 5 + 50 > 512 ? 1024 : 512;
+                        + popcount(v->pieceTypes) * 2 * 5 + 50 > 512 ? 1024 : 512;
 
     if (dataSize > DATA_SIZE)
         std::cerr << std::endl << "Warning: Recommended training data size " << dataSize
@@ -107,7 +108,7 @@ void on_variant_change(const Option &o) {
     std::cerr << "lib/nnue_training_data_formats.h:" << std::endl
     << "#define FILES " << v->maxFile + 1 << std::endl
     << "#define RANKS " << v->maxRank + 1 << std::endl
-    << "#define PIECE_TYPES " << v->pieceTypes.size() << std::endl
+    << "#define PIECE_TYPES " << popcount(v->pieceTypes) << std::endl
     << "#define PIECE_COUNT " << v->nnueMaxPieces << std::endl
     << "#define POCKETS " << (v->nnueUsePockets ? "true" : "false") << std::endl
     << "#define KING_SQUARES " << v->nnueKingSquare << std::endl
@@ -118,20 +119,23 @@ void on_variant_change(const Option &o) {
     << "FILES = " << v->maxFile + 1 << std::endl
     << "SQUARES = RANKS * FILES" << std::endl
     << "KING_SQUARES = " << v->nnueKingSquare << std::endl
-    << "PIECE_TYPES = " << v->pieceTypes.size() << std::endl
+    << "PIECE_TYPES = " << popcount(v->pieceTypes) << std::endl
     << "PIECES = 2 * PIECE_TYPES" << std::endl
     << "USE_POCKETS = " << (v->nnueUsePockets ? "True" : "False") << std::endl
     << "POCKETS = 2 * FILES if USE_POCKETS else 0" << std::endl
     << std::endl
     << "PIECE_VALUES = {" << std::endl;
-    for (PieceType pt : v->pieceTypes)
+    for (PieceSet ps = v->pieceTypes; ps;)
+    {
+        PieceType pt = pop_lsb(ps);
         if (pt != v->nnueKing)
             std::cerr << "  " << v->pieceIndex[pt] + 1 << ": " << PieceValue[MG][pt] << "," << std::endl;
+    }
     std::cerr << "}" << std::endl;
     // Do not send setup command for known variants
     if (standard_variants.find(o) != standard_variants.end())
         return;
-    int pocketsize = v->pieceDrops ? (v->pocketSize ? v->pocketSize : v->pieceTypes.size()) : 0;
+    int pocketsize = v->pieceDrops ? (v->pocketSize ? v->pocketSize : popcount(v->pieceTypes)) : 0;
     if (CurrentProtocol == XBOARD)
     {
         // Overwrite setup command for Janggi variants
@@ -154,8 +158,9 @@ void on_variant_change(const Option &o) {
                   << sync_endl;
         // Send piece command with Betza notation
         // https://www.gnu.org/software/xboard/Betza.html
-        for (PieceType pt : v->pieceTypes)
+        for (PieceSet ps = v->pieceTypes; ps;)
         {
+            PieceType pt = pop_lsb(ps);
             string suffix =   pt == PAWN && v->doubleStep     ? "ifmnD"
                             : pt == KING && v->cambodianMoves ? "ismN"
                             : pt == FERS && v->cambodianMoves ? "ifD"
@@ -185,7 +190,7 @@ void on_variant_change(const Option &o) {
                     suffix += std::string(v->dropNoDoubledCount, 'f');
                 else if (pt == BISHOP && v->dropOppositeColoredBishop)
                     suffix += "s";
-                suffix += "@" + std::to_string(pt == PAWN && !v->promotionZonePawnDrops ? v->promotionRank : v->maxRank + 1);
+                suffix += "@" + std::to_string(pt == PAWN && !v->promotionZonePawnDrops && v->promotionRegion[WHITE] ? rank_of(lsb(v->promotionRegion[WHITE])) : v->maxRank + 1);
             }
             sync_cout << "piece " << v->pieceToChar[pt] << "& " << pieceMap.find(pt == KING ? v->kingType : pt)->second->betza << suffix << sync_endl;
             PieceType promType = v->promotedPieceType[pt];
