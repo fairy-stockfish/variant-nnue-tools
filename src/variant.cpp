@@ -85,11 +85,11 @@ namespace {
     Variant* berolina_variant() {
         Variant* v = chess_variant_base()->init();
         v->remove_piece(PAWN);
-        v->add_piece(CUSTOM_PIECES, 'p', "mfFcfeWimfnA");
-        v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = CUSTOM_PIECES;
-        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->enPassantTypes[WHITE] = v->enPassantTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECES);
+        v->add_piece(CUSTOM_PIECE_1, 'p', "mfFcfeWimfnA");
+        v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = CUSTOM_PIECE_1;
+        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->enPassantTypes[WHITE] = v->enPassantTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
         return v;
     }
     // Pawnsideways
@@ -97,11 +97,11 @@ namespace {
     Variant* pawnsideways_variant() {
         Variant* v = chess_variant_base()->init();
         v->remove_piece(PAWN);
-        v->add_piece(CUSTOM_PIECES, 'p', "fsmWfceFifmnD");
-        v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = CUSTOM_PIECES;
-        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->enPassantTypes[WHITE] = v->enPassantTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECES);
+        v->add_piece(CUSTOM_PIECE_1, 'p', "fsmWfceFifmnD");
+        v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = CUSTOM_PIECE_1;
+        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->enPassantTypes[WHITE] = v->enPassantTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
         return v;
     }
     // Pawnback
@@ -109,13 +109,13 @@ namespace {
     Variant* pawnback_variant() {
         Variant* v = chess_variant_base()->init();
         v->remove_piece(PAWN);
-        v->add_piece(CUSTOM_PIECES, 'p', "fbmWfceFifmnD");
-        v->mobilityRegion[WHITE][CUSTOM_PIECES] = (Rank2BB | Rank3BB | Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB);
-        v->mobilityRegion[BLACK][CUSTOM_PIECES] = (Rank7BB | Rank6BB | Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
-        v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = CUSTOM_PIECES;
-        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->enPassantTypes[WHITE] = v->enPassantTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECES);
+        v->add_piece(CUSTOM_PIECE_1, 'p', "fbmWfceFifmnD");
+        v->mobilityRegion[WHITE][CUSTOM_PIECE_1] = (Rank2BB | Rank3BB | Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB);
+        v->mobilityRegion[BLACK][CUSTOM_PIECE_1] = (Rank7BB | Rank6BB | Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
+        v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = CUSTOM_PIECE_1;
+        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->enPassantTypes[WHITE] = v->enPassantTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = NO_PIECE_SET; // backwards pawn moves are reversible
         return v;
     }
     // Legan Chess
@@ -123,12 +123,12 @@ namespace {
     Variant* legan_variant() {
         Variant* v =  chess_variant_base()->init();
         v->remove_piece(PAWN);
-        v->add_piece(CUSTOM_PIECES, 'p', "mflFcflW");
+        v->add_piece(CUSTOM_PIECE_1, 'p', "mflFcflW");
         v->promotionRegion[WHITE] = make_bitboard(SQ_A8, SQ_B8, SQ_C8, SQ_D8, SQ_A7, SQ_A6, SQ_A5);
         v->promotionRegion[BLACK] = make_bitboard(SQ_E1, SQ_F1, SQ_G1, SQ_H1, SQ_H2, SQ_H3, SQ_H4);
-        v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = CUSTOM_PIECES;
-        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECES);
+        v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = CUSTOM_PIECE_1;
+        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
         v->startFen = "knbrp3/bqpp4/npp5/rp1p3P/p3P1PR/5PPN/4PPQB/3PRBNK w - - 0 1";
         v->doubleStep = false;
         return v;
@@ -279,18 +279,18 @@ namespace {
     Variant* nightrider_variant() {
         Variant* v = chess_variant_base()->init();
         v->remove_piece(KNIGHT);
-        v->add_piece(CUSTOM_PIECES, 'n', "NN");
-        v->promotionPieceTypes[WHITE] = piece_set(QUEEN) | ROOK | BISHOP | CUSTOM_PIECES;
-        v->promotionPieceTypes[BLACK] = piece_set(QUEEN) | ROOK | BISHOP | CUSTOM_PIECES;
+        v->add_piece(CUSTOM_PIECE_1, 'n', "NN");
+        v->promotionPieceTypes[WHITE] = piece_set(QUEEN) | ROOK | BISHOP | CUSTOM_PIECE_1;
+        v->promotionPieceTypes[BLACK] = piece_set(QUEEN) | ROOK | BISHOP | CUSTOM_PIECE_1;
         return v;
     }
     // Grasshopper chess
     // https://en.wikipedia.org/wiki/Grasshopper_chess
     Variant* grasshopper_variant() {
         Variant* v = chess_variant_base()->init();
-        v->add_piece(CUSTOM_PIECES, 'g', "gQ");
-        v->promotionPieceTypes[WHITE] |= CUSTOM_PIECES;
-        v->promotionPieceTypes[BLACK] |= CUSTOM_PIECES;
+        v->add_piece(CUSTOM_PIECE_1, 'g', "gQ");
+        v->promotionPieceTypes[WHITE] |= CUSTOM_PIECE_1;
+        v->promotionPieceTypes[BLACK] |= CUSTOM_PIECE_1;
         v->startFen = "rnbqkbnr/gggggggg/pppppppp/8/8/PPPPPPPP/GGGGGGGG/RNBQKBNR w KQkq - 0 1";
         v->doubleStep = false;
         return v;
@@ -481,6 +481,7 @@ namespace {
         v->extinctionPseudoRoyal = true;
         return v;
     }
+
 #ifdef ALLVARS
     // Duck chess
     Variant* duck_variant() {
@@ -494,13 +495,14 @@ namespace {
         v->stalemateValue = VALUE_MATE;
         return v;
     }
-    
+#endif
+
     Variant* isolation_variant() { //https://boardgamegeek.com/boardgame/1875/isolation
         Variant* v = chess_variant_base()->init();
         v->maxRank = RANK_8;
         v->maxFile = FILE_F;
         v->reset_pieces();
-        v->add_piece(CUSTOM_PIECES, 'p', "mK"); //move as a King, but can't capture
+        v->add_piece(CUSTOM_PIECE_1, 'p', "mK"); //move as a King, but can't capture
         v->startFen = "2p3/6/6/6/6/6/6/3P2 w - - 0 1";
         v->stalemateValue = -VALUE_MATE;
         v->staticGating = true;
@@ -522,7 +524,7 @@ namespace {
         v->maxRank = RANK_7;
         v->maxFile = FILE_G;
         v->reset_pieces();
-        v->add_piece(CUSTOM_PIECES, 'p', "mK"); //move as a King, but can't capture
+        v->add_piece(CUSTOM_PIECE_1, 'p', "mK"); //move as a King, but can't capture
         v->startFen = "6p/7/7/7/7/7/P6 w - - 0 1";
         v->stalemateValue = -VALUE_MATE;
         v->pastGating = true;
@@ -533,13 +535,13 @@ namespace {
         //This page mainly describes a variant where position on home row is randomized, but also a variant where they start in the centre(implemented here)
         Variant* v = chess_variant_base()->init();
         v->reset_pieces();
-        v->add_piece(CUSTOM_PIECES, 'n', "mN"); //move as a Knight, but can't capture
+        v->add_piece(CUSTOM_PIECE_1, 'n', "mN"); //move as a Knight, but can't capture
         v->startFen = "8/8/8/4n3/3N4/8/8/8 w - - 0 1";
         v->stalemateValue = -VALUE_MATE;
         v->pastGating = true;
         return v;
     }
-#endif
+
     // Three-check chess
     // Check the king three times to win
     // https://lichess.org/variant/threeCheck
@@ -714,9 +716,9 @@ namespace {
     Variant* paradigm_variant() {
         Variant *v = chess_variant_base()->init();
         v->remove_piece(BISHOP);
-        v->add_piece(CUSTOM_PIECES, 'b', "BnN");
-        v->promotionPieceTypes[WHITE] = piece_set(QUEEN) | CUSTOM_PIECES | ROOK | KNIGHT;
-        v->promotionPieceTypes[BLACK] = piece_set(QUEEN) | CUSTOM_PIECES | ROOK | KNIGHT;
+        v->add_piece(CUSTOM_PIECE_1, 'b', "BnN");
+        v->promotionPieceTypes[WHITE] = piece_set(QUEEN) | CUSTOM_PIECE_1 | ROOK | KNIGHT;
+        v->promotionPieceTypes[BLACK] = piece_set(QUEEN) | CUSTOM_PIECE_1 | ROOK | KNIGHT;
         return v;
     }
     // Base used for most shogi variants
@@ -877,13 +879,13 @@ namespace {
         v->reset_pieces();
         v->add_piece(SHOGI_PAWN, 's');
         v->add_piece(KING, 'k');
-        v->add_piece(CUSTOM_PIECES, 'f', "FsfW"); // falcon
-        v->add_piece(CUSTOM_PIECES + 1, 'c', "FvW"); // crane
-        v->add_piece(CUSTOM_PIECES + 2, 'l', "fRrbBlbF"); // left quail
-        v->add_piece(CUSTOM_PIECES + 3, 'r', "fRlbBrbF"); // right quail
-        v->add_piece(CUSTOM_PIECES + 4, 'p', "bFfD"); // pheasant
-        v->add_piece(CUSTOM_PIECES + 5, 'g', "fAbD"); // goose
-        v->add_piece(CUSTOM_PIECES + 6, 'e', "KbRfBbF2"); // eagle
+        v->add_piece(CUSTOM_PIECE_1, 'f', "FsfW"); // falcon
+        v->add_piece(CUSTOM_PIECE_2, 'c', "FvW"); // crane
+        v->add_piece(CUSTOM_PIECE_3, 'l', "fRrbBlbF"); // left quail
+        v->add_piece(CUSTOM_PIECE_4, 'r', "fRlbBrbF"); // right quail
+        v->add_piece(CUSTOM_PIECE_5, 'p', "bFfD"); // pheasant
+        v->add_piece(CUSTOM_PIECE_6, 'g', "fAbD"); // goose
+        v->add_piece(CUSTOM_PIECE_7, 'e', "KbRfBbF2"); // eagle
         v->startFen = "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1";
         v->pieceDrops = true;
         v->capturesToHand = true;
@@ -891,8 +893,8 @@ namespace {
         v->promotionRegion[BLACK] = Rank2BB | Rank1BB;
         v->doubleStep = false;
         v->castling = false;
-        v->promotedPieceType[SHOGI_PAWN]    = CUSTOM_PIECES + 5; // swallow promotes to goose
-        v->promotedPieceType[CUSTOM_PIECES] = CUSTOM_PIECES + 6; // falcon promotes to eagle
+        v->promotedPieceType[SHOGI_PAWN]    = CUSTOM_PIECE_6; // swallow promotes to goose
+        v->promotedPieceType[CUSTOM_PIECE_1] = CUSTOM_PIECE_7; // falcon promotes to eagle
         v->mandatoryPiecePromotion = true;
         v->dropNoDoubled = SHOGI_PAWN;
         v->dropNoDoubledCount = 2;
@@ -912,11 +914,11 @@ namespace {
         v->pieceToCharTable = "PNBR.....G.++++Kpnbr.....g.++++k";
         v->maxRank = RANK_8;
         v->maxFile = FILE_H;
-        v->add_piece(CUSTOM_PIECES, 'n', "fNsW");
+        v->add_piece(CUSTOM_PIECE_1, 'n', "fNsW");
         v->startFen = "1nbgkgn1/1r4b1/pppppppp/8/8/PPPPPPPP/1B4R1/1NGKGBN1[-] w 0 1";
         v->promotionRegion[WHITE] = Rank6BB | Rank7BB | Rank8BB;
         v->promotionRegion[BLACK] = Rank3BB | Rank2BB | Rank1BB;
-        v->promotedPieceType[CUSTOM_PIECES] = GOLD;
+        v->promotedPieceType[CUSTOM_PIECE_1] = GOLD;
         v->mandatoryPiecePromotion = true;
         return v;
     }
@@ -963,6 +965,18 @@ namespace {
         v->promotionPieceTypes[BLACK] = piece_set(CHANCELLOR) | ROOK | BISHOP | KNIGHT;
         return v;
     }
+    // Sort of almost chess
+    // One queen is replaced by a chancellor
+    // https://en.wikipedia.org/wiki/Almost_chess#Sort_of_almost_chess
+    Variant* sortofalmost_variant() {
+        Variant* v = chess_variant();
+        v->pieceToCharTable = "PNBRQ...........CKpnbrq...........ck";
+        v->add_piece(CHANCELLOR, 'c');
+        v->startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBCKBNR w KQkq - 0 1";
+        v->promotionPieceTypes[WHITE] = piece_set(CHANCELLOR) | ROOK | BISHOP | KNIGHT;
+        v->promotionPieceTypes[BLACK] = piece_set(QUEEN) | ROOK | BISHOP | KNIGHT;
+        return v;
+    }
     // Chigorin chess
     // Asymmetric variant with knight vs. bishop movements
     // https://www.chessvariants.com/diffsetup.dir/chigorin.html
@@ -994,14 +1008,14 @@ namespace {
         Variant* v = threekings_variant()->init();
         v->add_piece(DRAGON, 'g');
         v->add_piece(ARCHBISHOP, 'w');
-        v->add_piece(CUSTOM_PIECES, 'h', "fmFfcWimA");
-        v->add_piece(CUSTOM_PIECES + 1, 'l', "FAsmW");
-        v->add_piece(CUSTOM_PIECES + 2, 'c', "WD");
+        v->add_piece(CUSTOM_PIECE_1, 'h', "fmFfcWimA");
+        v->add_piece(CUSTOM_PIECE_2, 'l', "FAsmW");
+        v->add_piece(CUSTOM_PIECE_3, 'c', "WD");
         v->startFen = "lgkcckwl/hhhhhhhh/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1";
-        v->promotionPawnType[BLACK] = CUSTOM_PIECES;
-        v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECES);
-        v->promotionPieceTypes[BLACK] = piece_set(COMMONER) | DRAGON | ARCHBISHOP | (CUSTOM_PIECES + 1) | (CUSTOM_PIECES + 2);
+        v->promotionPawnType[BLACK] = CUSTOM_PIECE_1;
+        v->promotionPawnTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->nMoveRuleTypes[BLACK] = piece_set(CUSTOM_PIECE_1);
+        v->promotionPieceTypes[BLACK] = piece_set(COMMONER) | DRAGON | ARCHBISHOP | CUSTOM_PIECE_2 | CUSTOM_PIECE_3;
         v->promotionLimit[COMMONER] = 2;
         v->enPassantRegion = 0;
         v->extinctionPieceCount = 0;
@@ -1078,7 +1092,7 @@ namespace {
         v->maxRank = RANK_7;
         v->maxFile = FILE_G;
         v->reset_pieces();
-        v->add_piece(CUSTOM_PIECES, 'p', "mDmNmA");
+        v->add_piece(CUSTOM_PIECE_1, 'p', "mDmNmA");
         v->startFen = "P5p/7/7/7/7/7/p5P w 0 1";
         v->pieceDrops = true;
         v->doubleStep = false;
@@ -1175,11 +1189,11 @@ namespace {
         v->pieceToCharTable = "PNBRLSE..G.+.++.++Kpnbrlse..g.+.++.++k";
         v->remove_piece(KING);
         v->add_piece(COMMONER, 'k');
-        v->add_piece(CUSTOM_PIECES, 'e', "FsfW"); // drunk elephant
+        v->add_piece(CUSTOM_PIECE_1, 'e', "FsfW"); // drunk elephant
         v->startFen = "lnsgkgsnl/1r2e2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2E2R1/LNSGKGSNL w 0 1";
         v->capturesToHand = false;
         v->pieceDrops = false;
-        v->promotedPieceType[CUSTOM_PIECES] = COMMONER;
+        v->promotedPieceType[CUSTOM_PIECE_1] = COMMONER;
         v->castlingKingPiece[WHITE] = v->castlingKingPiece[BLACK] = COMMONER;
         v->extinctionValue = -VALUE_MATE;
         v->extinctionPieceTypes = piece_set(COMMONER);
@@ -1199,18 +1213,18 @@ namespace {
         v->add_piece(KING, 'k');
         v->add_piece(SHOGI_PAWN, 'p');
         v->add_piece(ROOK, 'l');
-        v->add_piece(CUSTOM_PIECES, 'n', "fRffN"); // Yari knight
-        v->add_piece(CUSTOM_PIECES + 1, 'b', "fFfR"); // Yari bishop
-        v->add_piece(CUSTOM_PIECES + 2, 'r', "frlR"); // Yari rook
-        v->add_piece(CUSTOM_PIECES + 3, 'g', "WfFbR"); // Yari gold
-        v->add_piece(CUSTOM_PIECES + 4, 's', "fKbR"); // Yari silver
+        v->add_piece(CUSTOM_PIECE_1, 'n', "fRffN"); // Yari knight
+        v->add_piece(CUSTOM_PIECE_2, 'b', "fFfR"); // Yari bishop
+        v->add_piece(CUSTOM_PIECE_3, 'r', "frlR"); // Yari rook
+        v->add_piece(CUSTOM_PIECE_4, 'g', "WfFbR"); // Yari gold
+        v->add_piece(CUSTOM_PIECE_5, 's', "fKbR"); // Yari silver
         v->startFen = "rnnkbbr/7/ppppppp/7/7/7/PPPPPPP/7/RBBKNNR[-] w 0 1";
         v->promotionRegion[WHITE] = Rank7BB | Rank8BB | Rank9BB;
         v->promotionRegion[BLACK] = Rank3BB | Rank2BB | Rank1BB;
-        v->promotedPieceType[SHOGI_PAWN] = CUSTOM_PIECES + 4;
-        v->promotedPieceType[CUSTOM_PIECES] = CUSTOM_PIECES + 3;
-        v->promotedPieceType[CUSTOM_PIECES + 1] = CUSTOM_PIECES + 3;
-        v->promotedPieceType[CUSTOM_PIECES + 2] = ROOK;
+        v->promotedPieceType[SHOGI_PAWN] = CUSTOM_PIECE_5;
+        v->promotedPieceType[CUSTOM_PIECE_1] = CUSTOM_PIECE_4;
+        v->promotedPieceType[CUSTOM_PIECE_2] = CUSTOM_PIECE_4;
+        v->promotedPieceType[CUSTOM_PIECE_3] = ROOK;
         v->pieceDrops = true;
         v->capturesToHand = true;
         v->doubleStep = false;
@@ -1230,13 +1244,13 @@ namespace {
         Variant* v = minishogi_variant_base()->init();
         v->maxRank = RANK_10;
         v->maxFile = FILE_J;
-        v->add_piece(CUSTOM_PIECES, 'l', "vR"); // Vertical slider
+        v->add_piece(CUSTOM_PIECE_1, 'l', "vR"); // Vertical slider
         v->add_piece(KNIGHT, 'n');
         v->add_piece(QUEEN, 'q');
         v->startFen = "lnsgkqgsnl/1r6b1/pppppppppp/10/10/10/10/PPPPPPPPPP/1B6R1/LNSGQKGSNL[-] w 0 1";
         v->promotionRegion[WHITE] = Rank8BB | Rank9BB | Rank10BB;
         v->promotionRegion[BLACK] = Rank3BB | Rank2BB | Rank1BB;
-        v->promotedPieceType[CUSTOM_PIECES] = GOLD;
+        v->promotedPieceType[CUSTOM_PIECE_1] = GOLD;
         v->promotedPieceType[KNIGHT] = GOLD;
         return v;
     }
@@ -1463,18 +1477,18 @@ namespace {
         Variant* v = grand_variant()->init();
         v->pieceToCharTable = "PNBRQ..AC....W.......LKpnbrq..ac....w.......lk";
         v->remove_piece(KNIGHT);
-        v->add_piece(CUSTOM_PIECES, 'n', "NW");
-        v->add_piece(CUSTOM_PIECES + 1, 'w', "CF");
-        v->add_piece(CUSTOM_PIECES + 2, 'l', "FDH");
+        v->add_piece(CUSTOM_PIECE_1, 'n', "NW");
+        v->add_piece(CUSTOM_PIECE_2, 'w', "CF");
+        v->add_piece(CUSTOM_PIECE_3, 'l', "FDH");
         v->startFen = "rw6wr/clbnqknbla/pppppppppp/10/10/10/10/PPPPPPPPPP/CLBNQKNBLA/RW6WR w - - 0 1";
         v->promotionPieceTypes[WHITE] &= ~piece_set(KNIGHT);
-        v->promotionPieceTypes[WHITE] |= CUSTOM_PIECES;
-        v->promotionPieceTypes[WHITE] |= CUSTOM_PIECES + 1;
-        v->promotionPieceTypes[WHITE] |= CUSTOM_PIECES + 2;
+        v->promotionPieceTypes[WHITE] |= CUSTOM_PIECE_1;
+        v->promotionPieceTypes[WHITE] |= CUSTOM_PIECE_2;
+        v->promotionPieceTypes[WHITE] |= CUSTOM_PIECE_3;
         v->promotionPieceTypes[BLACK] = v->promotionPieceTypes[WHITE];
-        v->promotionLimit[CUSTOM_PIECES] = 2;
-        v->promotionLimit[CUSTOM_PIECES + 1] = 2;
-        v->promotionLimit[CUSTOM_PIECES + 2] = 2;
+        v->promotionLimit[CUSTOM_PIECE_1] = 2;
+        v->promotionLimit[CUSTOM_PIECE_2] = 2;
+        v->promotionLimit[CUSTOM_PIECE_3] = 2;
         return v;
     }
     // Tencubed
@@ -1487,8 +1501,8 @@ namespace {
         v->startFen = "2cwamwc2/1rnbqkbnr1/pppppppppp/10/10/10/10/PPPPPPPPPP/1RNBQKBNR1/2CWAMWC2 w - - 0 1";
         v->add_piece(ARCHBISHOP, 'a');
         v->add_piece(CHANCELLOR, 'm');
-        v->add_piece(CUSTOM_PIECES, 'c', "DAW"); // Champion
-        v->add_piece(CUSTOM_PIECES + 1, 'w', "CF"); // Wizard
+        v->add_piece(CUSTOM_PIECE_1, 'c', "DAW"); // Champion
+        v->add_piece(CUSTOM_PIECE_2, 'w', "CF"); // Wizard
         v->promotionPieceTypes[WHITE] = piece_set(ARCHBISHOP) | CHANCELLOR | QUEEN;
         v->promotionPieceTypes[BLACK] = piece_set(ARCHBISHOP) | CHANCELLOR | QUEEN;
         v->promotionRegion[WHITE] = Rank10BB;
@@ -1507,15 +1521,15 @@ namespace {
         v->maxRank = RANK_10;
         v->maxFile = FILE_L;
         v->startFen = "w**********w/*crnbqkbnrc*/*pppppppppp*/*10*/*10*/*10*/*10*/*PPPPPPPPPP*/*CRNBQKBNRC*/W**********W w KQkq - 0 1";
-        v->add_piece(CUSTOM_PIECES, 'c', "DAW"); // Champion
-        v->add_piece(CUSTOM_PIECES + 1, 'w', "CF"); // Wizard
+        v->add_piece(CUSTOM_PIECE_1, 'c', "DAW"); // Champion
+        v->add_piece(CUSTOM_PIECE_2, 'w', "CF"); // Wizard
         v->castlingKingsideFile = FILE_I;
         v->castlingQueensideFile = FILE_E;
         v->castlingRank = RANK_2;
         v->promotionRegion[WHITE] = Rank9BB | Rank10BB;
         v->promotionRegion[BLACK] = Rank2BB | Rank1BB;
-        v->promotionPieceTypes[WHITE] = piece_set(CUSTOM_PIECES + 1) | CUSTOM_PIECES | QUEEN | ROOK | BISHOP | KNIGHT;
-        v->promotionPieceTypes[BLACK] = piece_set(CUSTOM_PIECES + 1) | CUSTOM_PIECES | QUEEN | ROOK | BISHOP | KNIGHT;
+        v->promotionPieceTypes[WHITE] = piece_set(CUSTOM_PIECE_2) | CUSTOM_PIECE_1 | QUEEN | ROOK | BISHOP | KNIGHT;
+        v->promotionPieceTypes[BLACK] = piece_set(CUSTOM_PIECE_2) | CUSTOM_PIECE_1 | QUEEN | ROOK | BISHOP | KNIGHT;
         v->doubleStepRegion[WHITE] = Rank3BB;
         v->doubleStepRegion[BLACK] = Rank8BB;
         return v;
@@ -1542,21 +1556,21 @@ namespace {
         v->remove_piece(KNIGHT);
         v->add_piece(CHANCELLOR, 'w'); // wolf
         v->add_piece(ARCHBISHOP, 'f'); // fox
-        v->add_piece(CUSTOM_PIECES, 's', "fKifmnD"); // seargent
-        v->add_piece(CUSTOM_PIECES + 1, 'n', "NN"); // nightrider
-        v->add_piece(CUSTOM_PIECES + 2, 'e', "NNQ"); // elephant
+        v->add_piece(CUSTOM_PIECE_1, 's', "fKifmnD"); // seargent
+        v->add_piece(CUSTOM_PIECE_2, 'n', "NN"); // nightrider
+        v->add_piece(CUSTOM_PIECE_3, 'e', "NNQ"); // elephant
         v->startFen = "qwfrbbnk/pssppssp/1pp2pp1/8/8/8/8/1PP2PP1/PSSPPSSP/KNBBRFWQ w - - 0 1";
         v->promotionPawnType[WHITE] = v->promotionPawnType[BLACK] = PAWN;
-        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(PAWN) | piece_set(CUSTOM_PIECES);
+        v->promotionPawnTypes[WHITE] = v->promotionPawnTypes[BLACK] = piece_set(PAWN) | piece_set(CUSTOM_PIECE_1);
         v->promotionPieceTypes[WHITE] = piece_set(QUEEN) | CHANCELLOR | ARCHBISHOP | ROOK | BISHOP;
         v->promotionPieceTypes[BLACK] = piece_set(QUEEN) | CHANCELLOR | ARCHBISHOP | ROOK | BISHOP;
-        v->promotedPieceType[PAWN] = CUSTOM_PIECES + 2;
+        v->promotedPieceType[PAWN] = CUSTOM_PIECE_3;
         v->promotionRegion[WHITE] = Rank10BB;
         v->promotionRegion[BLACK] = Rank1BB;
         v->doubleStepRegion[WHITE] = Rank2BB | make_bitboard(SQ_B3, SQ_C3, SQ_F3, SQ_G3);
         v->doubleStepRegion[BLACK] = Rank9BB | make_bitboard(SQ_B8, SQ_C8, SQ_F8, SQ_G8);
         v->enPassantTypes[WHITE] = v->enPassantTypes[BLACK] = piece_set(PAWN);
-        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(PAWN) | piece_set(CUSTOM_PIECES);
+        v->nMoveRuleTypes[WHITE] = v->nMoveRuleTypes[BLACK] = piece_set(PAWN) | piece_set(CUSTOM_PIECE_1);
         v->castling = false;
         return v;
     }
@@ -1577,6 +1591,8 @@ namespace {
         v->promotionRegion[BLACK] = Rank1BB;
         v->castlingKingsideFile = FILE_H;
         v->castlingQueensideFile = FILE_D;
+        v->castlingRookKingsideFile = FILE_I;
+        v->castlingRookQueensideFile = FILE_B;
         v->castlingRank = RANK_2;
         v->doubleStepRegion[WHITE] = Rank3BB;
         v->doubleStepRegion[BLACK] = Rank8BB;
@@ -1613,7 +1629,7 @@ namespace {
         v->maxRank = RANK_10;
         v->maxFile = FILE_J;
         v->reset_pieces();
-        v->add_piece(CUSTOM_PIECES, 'q', "mQ");
+        v->add_piece(CUSTOM_PIECE_1, 'q', "mQ");
         v->startFen = "3q2q3/10/10/q8q/10/10/Q8Q/10/10/3Q2Q3 w - - 0 1";
         v->stalemateValue = -VALUE_MATE;
         v->arrowGating = true;
@@ -1770,13 +1786,13 @@ void VariantMap::init() {
     add("horde", horde_variant());
     add("nocheckatomic", nocheckatomic_variant());
     add("atomic", atomic_variant());
-#ifdef ALLVARS
     add("isolation", isolation_variant());
     add("isolation7x7", isolation7x7_variant());
     add("snailtrail", snailtrail_variant());
+#ifdef ALLVARS
     add("duck", duck_variant());
-    add("joust", joust_variant());
 #endif
+    add("joust", joust_variant());
     add("3check", threecheck_variant());
     add("5check", fivecheck_variant());
     add("crazyhouse", crazyhouse_variant());
@@ -1803,6 +1819,7 @@ void VariantMap::init() {
     add("losalamos", losalamos_variant());
     add("gardner", gardner_variant());
     add("almost", almost_variant());
+    add("sortofalmost", sortofalmost_variant());
     add("chigorin", chigorin_variant());
     add("perfect", perfect_variant());
     add("spartan", spartan_variant());
@@ -1879,7 +1896,7 @@ void VariantMap::parse_istream(std::istream& file) {
             if (ss.peek() != ';' && ss.peek() != '#')
             {
                 if (DoCheck && !input.empty() && input.find('=') == std::string::npos)
-                    std::cerr << "Invalid sytax: '" << input << "'." << std::endl;
+                    std::cerr << "Invalid syntax: '" << input << "'." << std::endl;
                 if (std::getline(std::getline(ss, key, '=') >> std::ws, value) && !key.empty())
                     attribs[key.erase(key.find_last_not_of(" ") + 1)] = value;
             }
