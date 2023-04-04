@@ -204,6 +204,7 @@ public:
   Bitboard capture_the_flag(Color c) const;
   bool flag_move() const;
   bool check_counting() const;
+  int flag_piece_count() const;
   int connect_n() const;
   CheckCount checks_remaining(Color c) const;
   MaterialCounting material_counting() const;
@@ -953,6 +954,11 @@ inline Bitboard Position::capture_the_flag(Color c) const {
 inline bool Position::flag_move() const {
   assert(var != nullptr);
   return var->flagMove;
+}
+
+inline int Position::flag_piece_count() const {
+  assert(var != nullptr);
+  return var->flagPieceCount;
 }
 
 inline bool Position::check_counting() const {
