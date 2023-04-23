@@ -141,9 +141,10 @@ struct Variant {
   PieceSet extinctionPieceTypes = NO_PIECE_SET;
   int extinctionPieceCount = 0;
   int extinctionOpponentPieceCount = 0;
-  PieceType flagPiece = NO_PIECE_TYPE;
+  PieceType flagPiece[COLOR_NB] = {ALL_PIECES, ALL_PIECES};
   Bitboard flagRegion[COLOR_NB] = {};
   int flagPieceCount = 1;
+  bool flagPieceBlockedWin = false;
   bool flagMove = false;
   bool checkCounting = false;
   int connectN = 0;
@@ -325,7 +326,7 @@ struct Variant {
                     && checkmateValue == -VALUE_MATE
                     && stalemateValue == VALUE_DRAW
                     && !materialCounting
-                    && !flagPiece
+                    && !(flagRegion[WHITE] || flagRegion[BLACK])
                     && !mustCapture
                     && !checkCounting
                     && !makpongRule
