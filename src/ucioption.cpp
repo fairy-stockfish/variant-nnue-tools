@@ -105,16 +105,19 @@ void on_variant_change(const Option &o) {
                   << " not compatible with current version. "
                   << "Please recompile with largedata=yes" << std::endl << std::endl;
 
-    std::cerr << "lib/nnue_training_data_formats.h:" << std::endl
+    std::cerr<< std::endl
+    << "------ lib/nnue_training_data_formats.h --------" << std::endl
     << "#define FILES " << v->maxFile + 1 << std::endl
     << "#define RANKS " << v->maxRank + 1 << std::endl
     << "#define PIECE_TYPES " << popcount(v->pieceTypes) << std::endl
     << "#define PIECE_COUNT " << v->nnueMaxPieces << std::endl
     << "#define POCKETS " << (v->nnueUsePockets ? "true" : "false") << std::endl
     << "#define KING_SQUARES " << v->nnueKingSquare << std::endl
-    << "#define DATA_SIZE " << DATA_SIZE << std::endl;
+    << "#define DATA_SIZE " << DATA_SIZE << std::endl
+    << "------------------------------------------------" << std::endl;
 
-    std::cerr << std::endl << "variant.py:" << std::endl
+    std::cerr << std::endl
+    << "---------------- variant.py --------------------" << std::endl
     << "RANKS = " << v->maxRank + 1 << std::endl
     << "FILES = " << v->maxFile + 1 << std::endl
     << "SQUARES = RANKS * FILES" << std::endl
@@ -131,7 +134,8 @@ void on_variant_change(const Option &o) {
         if (pt != v->nnueKing)
             std::cerr << "  " << v->pieceIndex[pt] + 1 << ": " << PieceValue[MG][pt] << "," << std::endl;
     }
-    std::cerr << "}" << std::endl;
+    std::cerr << "}" << std::endl
+    << "------------------------------------------------" << std::endl;
     // Do not send setup command for known variants
     if (standard_variants.find(o) != standard_variants.end())
         return;
