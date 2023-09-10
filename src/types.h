@@ -304,7 +304,7 @@ enum ChasingRule {
 };
 
 enum EnclosingRule {
-  NO_ENCLOSING, REVERSI, ATAXX
+  NO_ENCLOSING, REVERSI, ATAXX, QUADWRANGLE
 };
 
 enum OptBool {

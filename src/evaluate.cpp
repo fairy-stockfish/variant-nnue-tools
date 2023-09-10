@@ -176,10 +176,13 @@ namespace Eval {
         exit(EXIT_FAILURE);
     }
 
-    if (useNNUE != UseNNUEMode::False)
-        sync_cout << "info string NNUE evaluation using " << eval_file << " enabled" << sync_endl;
-    else
-        sync_cout << "info string classical evaluation enabled" << sync_endl;
+    if (CurrentProtocol != XBOARD)
+    {
+        if (useNNUE != UseNNUEMode::False)
+            sync_cout << "info string NNUE evaluation using " << eval_file_loaded << " enabled" << sync_endl;
+        else
+            sync_cout << "info string classical evaluation enabled" << sync_endl;
+    }
   }
 }
 
