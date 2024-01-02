@@ -14,7 +14,7 @@ Currently the following options are available:
 
 `output_file` - path to the output file. Supports bin and binpack formats. Default: out.binpack.
 
-`absolute` - states that the adjustment should be bounded by an absolute value. After this token follows the maximum absolute adjustment. Values are always adjusted towards scores in the input file. This is the default mode. Default maximum adjustement: 5.
+`absolute` - states that the adjustment should be bounded by an absolute value. After this token follows the maximum absolute adjustment. Values are always adjusted towards scores in the input file. This is the default mode. Default maximum adjustment: 5.
 
 `relative` - states that the adjustment should be bounded by a value relative in magnitude to the static eval value. After this token follows the maximum relative change - a floating point value greater than 0. For example a value of 0.1 only allows changing the static eval by at most 10% towards the score from the input file.
 

@@ -223,11 +223,11 @@ namespace Stockfish::Tools {
 
         // Write high bits of half move. This is a fix for the
         // limited range of half move counter.
-        // This is backwards compatibile.
+        // This is backwards compatible.
         stream.write_n_bit(fm >> 8, 8);
 
         // Write the highest bit of rule50 at the end. This is a backwards
-        // compatibile fix for rule50 having only 6 bits stored.
+        // compatible fix for rule50 having only 6 bits stored.
         // This bit is just ignored by the old parsers.
         stream.write_n_bit(pos.state()->rule50 >> 6, 1);
 

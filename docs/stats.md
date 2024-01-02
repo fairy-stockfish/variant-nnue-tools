@@ -20,7 +20,7 @@ Any name that doesn't designate an argument name or is not an argument will be i
 
 `position_count` - the total number of positions in the file.
 
-`king`, `king_square_count` - the number of times a king was on each square. Output is layed out as a chessboard, with the 8th rank being the topmost. Separate values for white and black kings.
+`king`, `king_square_count` - the number of times a king was on each square. Output is laid out as a chessboard, with the 8th rank being the topmost. Separate values for white and black kings.
 
 `move`, `move_from_count` - same as `king_square_count` but for from_sq(move)
 

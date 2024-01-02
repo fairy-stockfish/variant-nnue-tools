@@ -171,7 +171,7 @@ namespace Stockfish::Tools {
 
             for(auto& sfen : sfens)
             {
-                // The library uses a type that's different but layout-compatibile.
+                // The library uses a type that's different but layout-compatible.
                 binpack::nodchip::PackedSfenValue e;
                 std::memcpy(&e, &sfen, sizeof(binpack::nodchip::PackedSfenValue));
                 m_stream.addTrainingDataEntry(binpack::packedSfenValueToTrainingDataEntry(e));

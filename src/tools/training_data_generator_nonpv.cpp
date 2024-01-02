@@ -105,7 +105,7 @@ namespace Stockfish::Tools
                 }
             }
 
-            // Output seed to veryfy by the user if it's not identical by chance.
+            // Output seed to verify by the user if it's not identical by chance.
             std::cout << prng << std::endl;
         }
 
