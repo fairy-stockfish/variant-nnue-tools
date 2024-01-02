@@ -2440,7 +2440,7 @@ namespace Search
       Value                  leafSearchEval    = VALUE_NONE;  // the evaluation from AB playout
       float                  prior             = 0.0f;        // the policy, currently a rough estimation based on the playout of the parent
       float                  actionValue       = 0.0f;        // the accumulated rewards
-      float                  actionValueWeight = 0.0f;        // the maximum value for the accumulater rewards
+      float                  actionValueWeight = 0.0f;        // the maximum value for the accumulator rewards
       Move                   prevMove          = MOVE_NONE;   // the move on the edge from the parent
       int                    numChildren       = 0;           // the number of legal moves, filled on expansion
       int                    childId           = 0;           // the index of this node in the parent's children array

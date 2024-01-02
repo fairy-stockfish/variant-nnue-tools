@@ -148,7 +148,7 @@ namespace Stockfish::Tools
                 }
             }
 
-            // Output seed to veryfy by the user if it's not identical by chance.
+            // Output seed to verify by the user if it's not identical by chance.
             std::cout << prngs[0] << std::endl;
         }
 
@@ -323,7 +323,7 @@ namespace Stockfish::Tools
                     break;
                 }
 
-                // Always adjudivate by eval limit.
+                // Always adjudicate by eval limit.
                 // Also because of this we don't have to check for TB/MATE scores
                 if (abs(search_value) >= params.eval_limit)
                 {
@@ -406,7 +406,7 @@ namespace Stockfish::Tools
     {
         // Look into the position hashtable to see if the same
         // position was seen before.
-        // This is a good heuristic to exlude already seen
+        // This is a good heuristic to exclude already seen
         // positions without many false positives.
         auto key = pos.key();
         auto hash_index = (size_t)(key & (GENSFEN_HASH_SIZE - 1));

@@ -479,7 +479,7 @@ inline uint64_t mul_hi64(uint64_t a, uint64_t b) {
 
 // This bitset can be accessed concurrently, provided
 // the concurrent accesses are performed on distinct
-// instances of underlying type. That means the cuncurrent
+// instances of underlying type. That means the concurrent
 // accesses need to be spaced by at least
 // bits_per_bucket bits.
 // But at least best_concurrent_access_stride bits
