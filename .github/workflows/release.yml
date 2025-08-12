@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install mingw w64
         run: sudo apt install mingw-w64
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: make
         run: cd src && make clean && make -j build COMP=gcc ARCH=${{ matrix.arch }} EXE=fairy-stockfish_${{ matrix.arch }} && strip fairy-stockfish_${{ matrix.arch }}
@@ -69,7 +69,7 @@ jobs:
     runs-on: macos-13
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: make
         run: cd src && make clean && make -j build COMP=clang ARCH=${{ matrix.arch }} EXE=fairy-stockfish_${{ matrix.arch }} && strip fairy-stockfish_${{ matrix.arch }}
@@ -94,7 +94,7 @@ jobs:
     runs-on: macos-14
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: make
         run: cd src && make clean && make -j build COMP=clang ARCH=${{ matrix.arch }} EXE=fairy-stockfish_${{ matrix.arch }} && strip fairy-stockfish_${{ matrix.arch }}
