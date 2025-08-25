@@ -338,6 +338,16 @@ namespace Stockfish::Tools {
             }
         }
 
+        // Hand pieces - read the counts for each color and piece type
+        for(auto c: Colors)
+            for (PieceSet ps = pos.piece_types(); ps;)
+            {
+                PieceType pt = pop_lsb(ps);
+                int count = stream.read_n_bit(DATA_SIZE > 512 ? 7 : 5);
+                for (int i = 0; i < count; ++i)
+                    pos.add_to_hand(make_piece(c, pt));
+            }
+
         // Castling availability.
         // TODO(someone): Support chess960.
         pos.st->castlingRights = 0;
