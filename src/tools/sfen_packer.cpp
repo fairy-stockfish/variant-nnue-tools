@@ -304,7 +304,11 @@ namespace Stockfish::Tools {
 
         // First the position of the ball
         for (auto c : Colors)
-            pos.board[from_variant_square(Square(stream.read_n_bit(7)), pos)] = make_piece(c, pos.nnue_king());
+        {
+            Square king_sq = from_variant_square(Square(stream.read_n_bit(7)), pos);
+            if (pos.nnue_king())
+                pos.board[king_sq] = make_piece(c, pos.nnue_king());
+        }
 
         // Piece placement
         for (Rank r = pos.max_rank(); r >= RANK_1; --r)
@@ -315,16 +319,16 @@ namespace Stockfish::Tools {
 
                 // it seems there are already balls
                 Piece pc;
-                if (type_of(pos.board[sq]) != pos.nnue_king())
-                {
-                    assert(pos.board[sq] == NO_PIECE);
-                    pc = packer.read_board_piece_from_stream(pos);
-                }
-                else
+                if (pos.nnue_king() && type_of(pos.board[sq]) == pos.nnue_king())
                 {
                     pc = pos.board[sq];
                     // put_piece() will catch ASSERT unless you remove it all.
                     pos.board[sq] = NO_PIECE;
+                }
+                else
+                {
+                    assert(pos.board[sq] == NO_PIECE);
+                    pc = packer.read_board_piece_from_stream(pos);
                 }
 
                 // There may be no pieces, so skip in that case.
