@@ -58,6 +58,6 @@ Currently the following options are available:
 
 `adjudicate_draws_by_insufficient_mating_material` - either 0 or 1. If 1 then position with insufficient material will be adjudicated as draws. Default: 1.
 
-`data_format` - format of the training data to use. Either `bin` or `binpack`. Default: `bin`.
+`data_format` - format of the training data to use. Either `bin` or `plain`. Default: `bin`.
 
 `seed` - seed for the PRNG. Can be either a number or a string. If it's a string then its hash will be used. If not specified then the current time will be used.

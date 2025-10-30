@@ -1,14 +1,14 @@
 # Stats
 
-`gather_statistics` command allows gathering various statistics from a .bin or a .binpack file. The syntax is `gather_statistics (GROUP)* input_file FILENAME`. There can be many groups specified. Any statistic gatherer that belongs to at least one of the specified groups will be used.
+`gather_statistics` command allows gathering various statistics from a .bin or a .plain file. The syntax is `gather_statistics (GROUP)* input_file FILENAME`. There can be many groups specified. Any statistic gatherer that belongs to at least one of the specified groups will be used.
 
-Simplest usage: `stockfish.exe gather_statistics all input_file a.binpack`
+Simplest usage: `stockfish.exe gather_statistics all input_file a.bin`
 
 Any name that doesn't designate an argument name or is not an argument will be interpreted as a group name.
 
 ## Parameters
 
-`input_file` - the path to the .bin or .binpack input file to read
+`input_file` - the path to the .bin or .plain input file to read
 
 `output_file` - optional path to the output file to write the results too. Results are always written on the console, so if this is specified the results will be written in both places.
 

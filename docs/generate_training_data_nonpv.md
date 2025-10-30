@@ -36,6 +36,6 @@ Currently the following options are available:
 
 `book` - a path to an opening book to use for the starting positions. Currently only .epd format is supported. If not specified then the starting position is always the standard chess starting position.
 
-`data_format` - format of the training data to use. Either `bin` or `binpack`. Default: `binpack`.
+`data_format` - format of the training data to use. Either `bin` or `plain`. Default: `bin`.
 
 `seed` - seed for the PRNG. Can be either a number or a string. If it's a string then its hash will be used. If not specified then the current time will be used.
