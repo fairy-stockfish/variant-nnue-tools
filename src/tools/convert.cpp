@@ -498,7 +498,7 @@ namespace Stockfish::Tools
         std::cout << "all done" << std::endl;
     }
 
-    void convert(istringstream& is)
+    void convert(istringstream&)
     {
         std::cerr << "ERROR: The 'convert' command has been removed. Please use 'convert_bin' or 'convert_plain' instead.\n";
         std::cerr << "Usage:\n";

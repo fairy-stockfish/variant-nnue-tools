@@ -30,7 +30,7 @@ namespace sys = std::filesystem;
 
 namespace Stockfish::Tools
 {
-    void validate_training_data(istringstream& is)
+    void validate_training_data(istringstream&)
     {
         std::cerr << "ERROR: The 'validate_training_data' command has been removed.\n";
         std::cerr << "Training data validation is no longer supported after removing binpack format dependencies.\n";

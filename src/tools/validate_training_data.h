@@ -6,7 +6,7 @@
 #include <sstream>
 
 namespace Stockfish::Tools {
-    void validate_training_data(std::istringstream& is);
+    void validate_training_data(std::istringstream&);
 }
 
 #endif
