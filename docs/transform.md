@@ -10,9 +10,9 @@ This command goes through positions in the input files and replaces the scores w
 
 Currently the following options are available:
 
-`input_file` - path to the input file. Supports bin and plain formats. Default: in.bin.
+`input_file` - path to the input file. Supports bin format. Default: in.bin.
 
-`output_file` - path to the output file. Supports bin and plain formats. Default: out.bin.
+`output_file` - path to the output file. Supports bin format. Default: out.bin.
 
 `absolute` - states that the adjustment should be bounded by an absolute value. After this token follows the maximum absolute adjustment. Values are always adjusted towards scores in the input file. This is the default mode. Default maximum adjustment: 5.
 
@@ -26,13 +26,13 @@ Currently the following options are available:
 
 This tool respects the UCI option `Threads` and uses all available threads.
 
-This command takes a path to the input file that is either a .epd file which contains one FEN per line or a .bin or .plain file and outputs a .bin or .plain file with these positions rescored with specified depth search.
+This command takes a path to the input file that is either a .epd file which contains one FEN per line or a .bin file and outputs a .bin file with these positions rescored with specified depth search.
 
 Currently the following options are available:
 
 `input_file` - path to the input file. Default: in.bin.
 
-`output_file` - path to the output .bin or .plain file. The file is opened in append mode. Default: out.bin.
+`output_file` - path to the output .bin file. The file is opened in append mode. Default: out.bin.
 
 `depth` - the search depth to use for rescoring. Default: 3.
 
