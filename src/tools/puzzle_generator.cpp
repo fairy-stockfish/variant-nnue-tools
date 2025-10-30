@@ -11,8 +11,6 @@
 #include "uci.h"
 #include "evaluate.h"
 
-#include "extra/nnue_data_binpack_format.h"
-
 #include "nnue/evaluate_nnue.h"
 
 #include "syzygy/tbprobe.h"
