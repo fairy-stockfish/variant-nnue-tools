@@ -6,8 +6,6 @@
 #include "position.h"
 #include "tt.h"
 
-#include "extra/nnue_data_binpack_format.h"
-
 #include "nnue/evaluate_nnue.h"
 
 #include "syzygy/tbprobe.h"
@@ -500,109 +498,12 @@ namespace Stockfish::Tools
         std::cout << "all done" << std::endl;
     }
 
-    static inline const std::string plain_extension = ".plain";
-    static inline const std::string bin_extension = ".bin";
-    static inline const std::string binpack_extension = ".binpack";
-
-    static bool file_exists(const std::string& name)
+    void convert(istringstream&)
     {
-        std::ifstream f(name);
-        return f.good();
-    }
-
-    static bool ends_with(const std::string& lhs, const std::string& end)
-    {
-        if (end.size() > lhs.size()) return false;
-
-        return std::equal(end.rbegin(), end.rend(), lhs.rbegin());
-    }
-
-    static bool is_convert_of_type(
-        const std::string& input_path,
-        const std::string& output_path,
-        const std::string& expected_input_extension,
-        const std::string& expected_output_extension)
-    {
-        return ends_with(input_path, expected_input_extension)
-            && ends_with(output_path, expected_output_extension);
-    }
-
-    using ConvertFunctionType = void(std::string inputPath, std::string outputPath, std::ios_base::openmode om, bool validate);
-
-    static ConvertFunctionType* get_convert_function(const std::string& input_path, const std::string& output_path)
-    {
-        if (is_convert_of_type(input_path, output_path, plain_extension, bin_extension))
-            return binpack::convertPlainToBin;
-        if (is_convert_of_type(input_path, output_path, plain_extension, binpack_extension))
-            return binpack::convertPlainToBinpack;
-
-        if (is_convert_of_type(input_path, output_path, bin_extension, plain_extension))
-            return binpack::convertBinToPlain;
-        if (is_convert_of_type(input_path, output_path, bin_extension, binpack_extension))
-            return binpack::convertBinToBinpack;
-
-        if (is_convert_of_type(input_path, output_path, binpack_extension, plain_extension))
-            return binpack::convertBinpackToPlain;
-        if (is_convert_of_type(input_path, output_path, binpack_extension, bin_extension))
-            return binpack::convertBinpackToBin;
-
-        return nullptr;
-    }
-
-    static void convert(const std::string& input_path, const std::string& output_path, std::ios_base::openmode om, bool validate)
-    {
-        if(!file_exists(input_path))
-        {
-            std::cerr << "Input file does not exist.\n";
-            return;
-        }
-
-        auto func = get_convert_function(input_path, output_path);
-        if (func != nullptr)
-        {
-            func(input_path, output_path, om, validate);
-        }
-        else
-        {
-            std::cerr << "Conversion between files of these types is not supported.\n";
-        }
-    }
-
-    static void convert(const std::vector<std::string>& args)
-    {
-        if (args.size() < 2 || args.size() > 4)
-        {
-            std::cerr << "Invalid arguments.\n";
-            std::cerr << "Usage: convert from_path to_path [append] [validate]\n";
-            return;
-        }
-
-        const bool append = std::find(args.begin() + 2, args.end(), "append") != args.end();
-        const bool validate = std::find(args.begin() + 2, args.end(), "validate") != args.end();
-
-        const std::ios_base::openmode openmode =
-            append
-            ? std::ios_base::app
-            : std::ios_base::trunc;
-
-        convert(args[0], args[1], openmode, validate);
-    }
-
-    void convert(istringstream& is)
-    {
-        std::vector<std::string> args;
-
-        while (true)
-        {
-            std::string token = "";
-            is >> token;
-            if (token == "")
-                break;
-
-            args.push_back(token);
-        }
-
-        convert(args);
+        std::cerr << "ERROR: The 'convert' command has been removed. Please use 'convert_bin' or 'convert_plain' instead.\n";
+        std::cerr << "Usage:\n";
+        std::cerr << "  convert_bin targetfile <file> output_file_name <output>\n";
+        std::cerr << "  convert_plain targetfile <file> output_file_name <output>\n";
     }
 
     static void append_files_from_dir(

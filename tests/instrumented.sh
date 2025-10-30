@@ -157,8 +157,6 @@ cat << EOF > data_generation01.exp
  expect "INFO: Gensfen finished."
  send "convert_plain targetfile training_data/training_data.bin output_file_name training_data.txt\n"
  expect "all done"
- send "generate_training_data depth 3 count 100 keep_draws 1 eval_limit 32000 output_file_name training_data/training_data.binpack output_format binpack\n"
- expect "INFO: Gensfen finished."
 
  send "quit\n"
  expect eof
@@ -180,8 +178,6 @@ cat << EOF > data_generation02.exp
  send "setoption name Use NNUE value true\n"
  send "isready\n"
  send "generate_training_data depth 4 count 50 keep_draws 1 eval_limit 32000 output_file_name validation_data/validation_data.bin output_format bin\n"
- expect "INFO: Gensfen finished."
- send "generate_training_data depth 4 count 50 keep_draws 1 eval_limit 32000 output_file_name validation_data/validation_data.binpack output_format binpack\n"
  expect "INFO: Gensfen finished."
 
  send "quit\n"

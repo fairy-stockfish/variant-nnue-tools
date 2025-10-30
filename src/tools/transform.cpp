@@ -34,8 +34,8 @@ namespace Stockfish::Tools
 
     struct NudgedStaticParams
     {
-        std::string input_filename = "in.binpack";
-        std::string output_filename = "out.binpack";
+        std::string input_filename = "in.bin";
+        std::string output_filename = "out.bin";
         NudgedStaticMode mode = NudgedStaticMode::Absolute;
         int absolute_nudge = 5;
         float relative_nudge = 0.1;
@@ -51,7 +51,7 @@ namespace Stockfish::Tools
     struct RescoreParams
     {
         std::string input_filename = "in.epd";
-        std::string output_filename = "out.binpack";
+        std::string output_filename = "out.bin";
         int depth = 3;
         int research_count = 0;
         bool keep_moves = true;
@@ -372,7 +372,7 @@ namespace Stockfish::Tools
             return psv;
         };
 
-        auto sfen_format = ends_with(params.output_filename, ".binpack") ? SfenOutputType::Binpack : SfenOutputType::Bin;
+        auto sfen_format = SfenOutputType::Bin;
 
         auto out = SfenWriter(
             params.output_filename,
@@ -447,7 +447,7 @@ namespace Stockfish::Tools
         {
             do_rescore_epd(params);
         }
-        else if (ends_with(params.input_filename, ".bin") || ends_with(params.input_filename, ".binpack"))
+        else if (ends_with(params.input_filename, ".bin"))
         {
             do_rescore_data(params);
         }
