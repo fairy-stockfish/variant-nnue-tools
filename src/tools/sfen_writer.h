@@ -22,11 +22,9 @@ namespace Stockfish::Tools {
     // Helper class for exporting Sfen
     struct SfenWriter
     {
-        // Amount of sfens required to flush the buffer.
-        static constexpr size_t SFEN_WRITE_SIZE = 5000;
-
         // File name to write and number of threads to create
-        SfenWriter(std::string filename_, int thread_num, uint64_t save_count, SfenOutputType sfen_output_type)
+        SfenWriter(std::string filename_, int thread_num, uint64_t save_count, SfenOutputType sfen_output_type, size_t buffer_size = 5000)
+            : sfen_write_size(buffer_size)
         {
             sfen_buffers_pool.reserve((size_t)thread_num * 10);
             sfen_buffers.resize(thread_num);
@@ -75,14 +73,14 @@ namespace Stockfish::Tools {
             if (!buf)
             {
                 buf = std::make_unique<PSVector>();
-                buf->reserve(SFEN_WRITE_SIZE);
+                buf->reserve(sfen_write_size);
             }
 
             // Buffer is exclusive to this thread.
             // There is no need for a critical section.
             buf->push_back(psv);
 
-            if (buf->size() >= SFEN_WRITE_SIZE)
+            if (buf->size() >= sfen_write_size)
             {
                 // If you load it in sfen_buffers_pool, the worker will do the rest.
 
@@ -199,5 +197,8 @@ namespace Stockfish::Tools {
         // number of sfens written in the current file.
         uint64_t sfen_write_count = 0;
         uint64_t sfen_write_count_current_file = 0;
+
+        // Amount of sfens required to flush the buffer.
+        size_t sfen_write_size;
     };
 }

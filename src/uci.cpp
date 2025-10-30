@@ -39,6 +39,7 @@
 #include "tools/validate_training_data.h"
 #include "tools/training_data_generator.h"
 #include "tools/training_data_generator_nonpv.h"
+#include "tools/puzzle_generator.h"
 #include "tools/convert.h"
 #include "tools/transform.h"
 #include "tools/stats.h"
@@ -572,7 +573,8 @@ void UCI::loop(int argc, char* argv[]) {
           position(pos, is, states);
       }
       else if (token == "generate_training_data") Tools::generate_training_data(is);
-      else if (token == "generate_training_data") Tools::generate_training_data_nonpv(is);
+      else if (token == "generate_training_data_nonpv") Tools::generate_training_data_nonpv(is);
+      else if (token == "generate_puzzles") Tools::generate_puzzles(is);
       else if (token == "convert") Tools::convert(is);
       else if (token == "validate_training_data") Tools::validate_training_data(is);
       else if (token == "convert_bin") Tools::convert_bin(is);

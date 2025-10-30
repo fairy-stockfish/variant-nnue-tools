@@ -340,6 +340,7 @@ namespace {
     explicit Evaluation(const Position& p) : pos(p) {}
     Evaluation& operator=(const Evaluation&) = delete;
     Value value();
+    Value king();
 
   private:
     template<Color Us> void initialize();
@@ -1577,6 +1578,44 @@ make_v:
     return v;
   }
 
+  template<Tracing T>
+  Value Evaluation<T>::king() {
+
+    assert(!pos.checkers());
+    assert(!pos.is_immediate_game_end());
+
+    // Probe the material hash table
+    me = Material::probe(pos);
+
+    // Probe the pawn hash table
+    pe = Pawns::probe(pos);
+
+    // Main evaluation begins here
+    std::memset(attackedBy, 0, sizeof(attackedBy));
+    initialize<WHITE>();
+    initialize<BLACK>();
+
+    // Pieces evaluated first (also populates attackedBy, attackedBy2).
+    // For unused piece types, we still need to set attack bitboard to zero.
+    for (PieceSet ps = pos.piece_types(); ps;)
+    {
+        PieceType pt = pop_lsb(ps);
+        if (pt != SHOGI_PAWN && pt != PAWN && pt != KING)
+            pieces<WHITE>(pt) - pieces<BLACK>(pt);
+    }
+
+    // Evaluate pieces in hand once attack tables are complete
+    if (pos.piece_drops() || pos.seirawan_gating())
+        for (PieceSet ps = pos.piece_types(); ps;)
+        {
+            PieceType pt = pop_lsb(ps);
+            hand<WHITE>(pt) - hand<BLACK>(pt);
+        }
+
+    // More complex interactions that require fully populated attack bitboards
+    return mg_value(pos.side_to_move() == BLACK ? king<WHITE>() : king<BLACK>());
+  }
+
 
   /// Fisher Random Chess: correction for cornered bishops, to fix chess960 play with NNUE
 
@@ -1686,6 +1725,12 @@ Value Eval::evaluate(const Position& pos) {
 
   return v;
 }
+
+
+Value Eval::eval_king(const Position& pos) {
+    return Evaluation<NO_TRACE>(pos).king();
+}
+
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
 /// a string (suitable for outputting to stdout) that contains the detailed
