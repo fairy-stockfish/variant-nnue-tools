@@ -3,6 +3,7 @@
 
 #include "packed_sfen.h"
 
+#include <cassert>
 #include <optional>
 #include <fstream>
 #include <string>
