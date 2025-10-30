@@ -10,8 +10,6 @@
 #include "tt.h"
 #include "uci.h"
 
-#include "extra/nnue_data_binpack_format.h"
-
 #include "nnue/evaluate_nnue.h"
 
 #include "syzygy/tbprobe.h"
@@ -63,7 +61,7 @@ namespace Stockfish::Tools
 
             std::string output_file_name = "training_data_nonpv";
 
-            SfenOutputType sfen_format = SfenOutputType::Binpack;
+            SfenOutputType sfen_format = SfenOutputType::Bin;
 
             std::string seed;
 
@@ -396,7 +394,7 @@ namespace Stockfish::Tools
         uint64_t count = 1'000'000;
 
         // Add a random number to the end of the file name.
-        std::string sfen_format = "binpack";
+        std::string sfen_format = "bin";
 
         string token;
         while (true)
@@ -452,8 +450,6 @@ namespace Stockfish::Tools
         {
             if (sfen_format == "bin")
                 params.sfen_format = SfenOutputType::Bin;
-            else if (sfen_format == "binpack")
-                params.sfen_format = SfenOutputType::Binpack;
             else
                 cout << "WARNING: Unknown sfen format `" << sfen_format << "`. Using bin\n";
         }

@@ -6,8 +6,6 @@
 #include "position.h"
 #include "tt.h"
 
-#include "extra/nnue_data_binpack_format.h"
-
 #include "nnue/evaluate_nnue.h"
 
 #include "syzygy/tbprobe.h"
@@ -34,7 +32,6 @@ namespace Stockfish::Tools
 {
     static inline const std::string plain_extension = ".plain";
     static inline const std::string bin_extension = ".bin";
-    static inline const std::string binpack_extension = ".binpack";
 
     static bool file_exists(const std::string& name)
     {
@@ -65,9 +62,6 @@ namespace Stockfish::Tools
 
         if (is_validation_of_type(input_path, bin_extension))
             return binpack::validateBin;
-
-        if (is_validation_of_type(input_path, binpack_extension))
-            return binpack::validateBinpack;
 
         return nullptr;
     }
