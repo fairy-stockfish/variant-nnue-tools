@@ -498,6 +498,41 @@ namespace Stockfish::Tools
         std::cout << "all done" << std::endl;
     }
 
+    void convert_epd(
+        const vector<string>& filenames,
+        const string& output_file_name)
+    {
+        Position tpos;
+        std::ofstream ofs;
+        ofs.open(output_file_name, ios::app);
+        auto th = Threads.main();
+        for (auto filename : filenames) {
+            std::cout << "convert " << filename << " ... ";
+
+            // Convert packedsfenvalue to EPD format (FEN only)
+            std::fstream fs;
+            fs.open(filename, ios::in | ios::binary);
+            PackedSfenValue p;
+            while (true)
+            {
+                if (fs.read((char*)&p, sizeof(PackedSfenValue))) {
+                    StateInfo si;
+                    tpos.set_from_packed_sfen(p.sfen, &si, th);
+
+                    // write only FEN (EPD format)
+                    ofs << tpos.fen() << std::endl;
+                }
+                else {
+                    break;
+                }
+            }
+            fs.close();
+            std::cout << "done" << std::endl;
+        }
+        ofs.close();
+        std::cout << "all done" << std::endl;
+    }
+
     void convert(istringstream&)
     {
         std::cerr << "ERROR: The 'convert' command has been removed. Please use 'convert_bin' or 'convert_plain' instead.\n";
@@ -713,5 +748,51 @@ namespace Stockfish::Tools
 
         cout << "convert_plain.." << endl;
         convert_plain(filenames, output_file_name);
+    }
+
+    void convert_epd(std::istringstream& is)
+    {
+        std::vector<std::string> filenames;
+
+        string base_dir;
+        string target_dir;
+
+        string output_file_name = "shuffled_sfen.bin";
+
+        while (true)
+        {
+            string option;
+            is >> option;
+
+            if (option == "")
+                break;
+
+            if (option == "targetdir") is >> target_dir;
+            else if (option == "targetfile")
+            {
+                std::string filename;
+                is >> filename;
+                filenames.push_back(filename);
+            }
+
+            else if (option == "basedir")   is >> base_dir;
+
+            else if (option == "output_file_name") is >> output_file_name;
+            else
+            {
+                cout << "Unknown option: " << option << ". Ignoring.\n";
+            }
+        }
+
+        if (!target_dir.empty())
+        {
+            append_files_from_dir(filenames, base_dir, target_dir);
+        }
+        rebase_files(filenames, base_dir);
+
+        Eval::NNUE::init();
+
+        cout << "convert_epd.." << endl;
+        convert_epd(filenames, output_file_name);
     }
 }

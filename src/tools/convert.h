@@ -13,6 +13,8 @@ namespace Stockfish::Tools {
     void convert_bin(std::istringstream& is);
 
     void convert_plain(std::istringstream& is);
+
+    void convert_epd(std::istringstream& is);
 }
 
 #endif

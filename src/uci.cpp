@@ -579,6 +579,7 @@ void UCI::loop(int argc, char* argv[]) {
       else if (token == "validate_training_data") Tools::validate_training_data(is);
       else if (token == "convert_bin") Tools::convert_bin(is);
       else if (token == "convert_plain") Tools::convert_plain(is);
+      else if (token == "convert_epd") Tools::convert_epd(is);
       else if (token == "convert_bin_from_pgn_extract") Tools::convert_bin_from_pgn_extract(is);
       else if (token == "transform") Tools::transform(is);
       else if (token == "gather_statistics") Tools::Stats::gather_statistics(is);
