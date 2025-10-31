@@ -4,6 +4,8 @@ The conversion functionality has been split into three separate commands: `conve
 
 As with all commands in stockfish, these can be invoked either from the command line (as `stockfish.exe convert_bin ...`) or in the interactive prompt.
 
+Note that you will need to set the correct variant with the `UCI_Variant` option before converting data for games other than chess. 
+
 ## convert_bin
 
 Converts plain text training data into binary `.bin` format (PackedSfenValue).
@@ -29,8 +31,6 @@ convert_bin [options]
 - `src_score_max_value <n>` - Maximum value in source score range (default: 1.0)
 - `dest_score_min_value <n>` - Minimum value in destination score range (default: 0.0)
 - `dest_score_max_value <n>` - Maximum value in destination score range (default: 1.0)
-- `pgn_eval_side_to_move <0|1>` - Interpret PGN evaluations as side-to-move relative (default: 0)
-- `convert_no_eval_fens_as_score_zero <0|1>` - Treat positions without evaluation as score 0 (default: 0)
 
 **Example**:
 ```
