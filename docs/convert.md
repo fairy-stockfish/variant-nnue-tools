@@ -1,18 +1,121 @@
-# Convert
+# Convert Commands
 
-`convert` allows conversion of training data between `.plain` and `.bin`.
+The conversion functionality has been split into three separate commands: `convert_bin`, `convert_plain`, and `convert_epd`. Each command serves a specific conversion purpose for training data.
 
-As all commands in stockfish `convert` can be invoked either from command line (as `stockfish.exe convert ...`) or in the interactive prompt.
+As with all commands in stockfish, these can be invoked either from the command line (as `stockfish.exe convert_bin ...`) or in the interactive prompt.
 
-The syntax of this command is as follows:
+## convert_bin
+
+Converts plain text training data into binary `.bin` format (PackedSfenValue).
+
+**Purpose**: Converts text files containing position data (in FEN format with move, score, ply, and result information) into the binary format used for training.
+
+**Syntax**:
 ```
-convert from_path to_path [append] [validate]
+convert_bin [options]
 ```
 
-`from_path` is the path to the file to convert from. The type of the data is deduced based on its extension (one of `.plain`, `.bin`).
-`to_path` is the path to an output file. The type of the data is deduced from its extension. If the file does not exist it is created.
+**Common Options**:
+- `targetfile <file>` - Specifies an input file to convert (can be specified multiple times)
+- `targetdir <dir>` - Specifies a directory containing input files
+- `basedir <dir>` - Base directory for relative paths
+- `output_file_name <output>` - Path to the output binary file (default: `shuffled_sfen.bin`)
+- `ply_minimum <n>` - Minimum ply number to include (default: 0)
+- `ply_maximum <n>` - Maximum ply number to include (default: 114514)
+- `check_invalid_fen <0|1>` - Filter out invalid FEN positions (default: 0)
+- `check_illegal_move <0|1>` - Filter out illegal moves (default: 0)
+- `interpolate_eval <n>` - Interpolate evaluation scores (default: 0)
+- `src_score_min_value <n>` - Minimum value in source score range (default: 0.0)
+- `src_score_max_value <n>` - Maximum value in source score range (default: 1.0)
+- `dest_score_min_value <n>` - Minimum value in destination score range (default: 0.0)
+- `dest_score_max_value <n>` - Maximum value in destination score range (default: 1.0)
+- `pgn_eval_side_to_move <0|1>` - Interpret PGN evaluations as side-to-move relative (default: 0)
+- `convert_no_eval_fens_as_score_zero <0|1>` - Treat positions without evaluation as score 0 (default: 0)
 
-`append` and `validate` can come in any order and are optional.
-If `append` not specified then the output file will be truncated prior to any writes. If `append` is specified then the converted training data will be appended to the end of the output file.
+**Example**:
+```
+convert_bin targetfile training_data.txt output_file_name training.bin
+```
 
-If `validate` is specified then the conversion will stop on the first illegal move found and a diagnostic will be shown.
+**Input Format**: Plain text with each position represented as:
+```
+fen <fen-string>
+move <move>
+score <score>
+ply <ply-number>
+result <result>
+e
+```
+
+## convert_plain
+
+Converts binary `.bin` format (PackedSfenValue) back into plain text format.
+
+**Purpose**: Converts the binary training data format back into human-readable text format for inspection or further processing.
+
+**Syntax**:
+```
+convert_plain [options]
+```
+
+**Options**:
+- `targetfile <file>` - Specifies an input binary file to convert (can be specified multiple times)
+- `targetdir <dir>` - Specifies a directory containing input binary files
+- `basedir <dir>` - Base directory for relative paths
+- `output_file_name <output>` - Path to the output text file (default: `shuffled_sfen.bin`)
+
+**Example**:
+```
+convert_plain targetfile training.bin output_file_name training_data.txt
+```
+
+**Output Format**: Plain text with each position represented as:
+```
+fen <fen-string>
+move <move>
+score <score>
+ply <ply-number>
+result <result>
+e
+```
+
+## convert_epd
+
+Converts binary `.bin` format (PackedSfenValue) into EPD format (FEN positions only).
+
+**Purpose**: Exports positions from binary training data as EPD format, which contains only FEN strings (one per line), suitable for position databases or testing tools.
+
+**Syntax**:
+```
+convert_epd [options]
+```
+
+**Options**:
+- `targetfile <file>` - Specifies an input binary file to convert (can be specified multiple times)
+- `targetdir <dir>` - Specifies a directory containing input binary files
+- `basedir <dir>` - Base directory for relative paths
+- `output_file_name <output>` - Path to the output EPD file (default: `shuffled_sfen.bin`)
+
+**Example**:
+```
+convert_epd targetfile training.bin output_file_name positions.epd
+```
+
+**Output Format**: EPD format - one FEN string per line:
+```
+rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1
+...
+```
+
+## Migration Note
+
+The old unified `convert` command has been removed. If you were previously using:
+```
+convert from_path to_path
+```
+
+You should now use:
+- `convert_bin` to convert from plain text to binary format
+- `convert_plain` to convert from binary to plain text format
+- `convert_epd` to export positions as EPD format
