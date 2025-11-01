@@ -47,14 +47,14 @@ namespace Stockfish::Tools
             int search_depth_max = -1;
 
             // Puzzle-specific depth for mate detection
-            int puzzle_depth = 0;
+            int puzzle_depth = 7;
 
             // Number of the nodes to be searched.
             // 0 represents no limits.
             uint64_t nodes = 0;
 
             // Upper limit of evaluation value of generated situation
-            int eval_limit = 3000;
+            int eval_limit = VALUE_MATE;
             int eval_diff_limit = 64000;
             int king_safety_limit = 64000;
             int material_limit = 64000;
@@ -64,14 +64,8 @@ namespace Stockfish::Tools
             // maximum ply with random move
             // Number of random moves in one station
             int random_move_minply = 1;
-            int random_move_maxply = 24;
-            int random_move_count = 5;
-
-            // Move kings with a probability of 1/N when randomly moving like Apery software.
-            // When you move the king again, there is a 1/N chance that it will randomly moved
-            // once in the opponent's turn.
-            // Apery has N=2. Specifying 0 here disables this function.
-            int random_move_like_apery = 0;
+            int random_move_maxply = 150;
+            int random_move_count = 10;
 
             // For when using multi pv instead of random move.
             // random_multi_pv is the number of candidates for MultiPV.
@@ -80,18 +74,18 @@ namespace Stockfish::Tools
             // and the evaluation value of the move of the Nth place is.
             // Must be in the range random_multi_pv_diff.
             // random_multi_pv_depth is the search depth for MultiPV.
-            int random_multi_pv = 5;
-            int random_multi_pv_diff = 100;
+            int random_multi_pv = 0;
+            int random_multi_pv_diff = 300;
             int random_multi_pv_depth = -1;
 
             // The minimum and maximum ply (number of steps from
             // the initial phase) of the sfens to write out.
             int write_minply = 5;
-            int write_maxply = 400;
+            int write_maxply = 150;
 
             uint64_t save_every = std::numeric_limits<uint64_t>::max();
 
-            uint64_t report_stats_every = 200000;
+            uint64_t report_stats_every = 10;
 
             std::string output_file_name = "puzzles";
 
@@ -99,12 +93,8 @@ namespace Stockfish::Tools
 
             std::string seed;
 
-            float write_out_draw_game_in_training_data_generation = 1;
             bool detect_draw_by_consecutive_low_score = true;
             bool detect_draw_by_insufficient_mating_material = true;
-            bool filter_captures = true;
-            bool filter_checks = false;
-            bool filter_promotions = false;
 
             uint64_t num_threads;
 
@@ -323,8 +313,6 @@ namespace Stockfish::Tools
 
                 // Starting search calls init_for_search
                 Value king_safety = Eval::eval_king(pos);
-                auto [eval_value, eval_pv] = Search::search(pos, pos.checkers() || pos.is_immediate_game_end() ? 0 : -1);
-                auto [qsearch_value, qsearch_pv] = Search::search(pos, 0);
                 auto [search_value, search_pv] = Search::search(pos, depth, 1, params.nodes);
 
                 // This has to be performed after search because it needs to know
@@ -362,37 +350,30 @@ namespace Stockfish::Tools
                 // Save the move score for adjudication.
                 move_hist_scores.push_back(search_value);
 
-                // Discard stuff before write_minply is reached
-                // because it can harm training due to overfitting.
-                // Initial positions would be too common.
-
-                // Filter for static positions using abs(qsearch_value - eval_value)
-                // sync_cout << pos.fen() << " | " << search_value << " | " << qsearch_value << " | " << eval_value << sync_endl;
+                // Filter positions for good puzzle candidates
                 if (ply >= params.write_minply && !was_seen_before(pos)
-                    && !pos.checkers() && pos.nnue_applicable()
-                    && std::abs(qsearch_value - eval_value) <= params.eval_diff_limit
                     && king_safety <= params.king_safety_limit
-                    && mg_value(pos.side_to_move() == WHITE ? pos.psq_score() : -pos.psq_score()) <= params.material_limit
-                    && !(params.filter_captures && pos.capture(search_pv[0]))
-                    && !(params.filter_checks && pos.gives_check(search_pv[0]))
-                    && !(params.filter_promotions && (type_of(search_pv[0]) == PROMOTION || type_of(search_pv[0]) == PIECE_PROMOTION)))
+                    && mg_value(pos.side_to_move() == WHITE ? pos.psq_score() : -pos.psq_score()) <= params.material_limit)
                 {
                     bool keep = true;
 
+                    // Too short mate
+                    if (search_value > mate_in(params.mate_ply))
+                        keep = false;
+
                     // If puzzle_depth is set, we will check if the position is a mate or not.
-                    if (params.puzzle_depth > 0)
+                    else if (params.puzzle_depth > 0)
                     {
-                        // Too short mate
-                        if (search_value > mate_in(params.mate_ply))
+                        auto [search_value2, search_pv2] = Search::search(pos, params.puzzle_depth, 1, 0);
+                        // Filter non-mate and short mate positions
+                        if (search_value2 < VALUE_MATE_IN_MAX_PLY || search_value2 > mate_in(params.mate_ply))
                             keep = false;
-                        else
-                        {
-                            auto [search_value2, search_pv2] = Search::search(pos, params.puzzle_depth, 1, 0);
-                            // Filter non-mate and short mate positions
-                            if (search_value2 < VALUE_MATE_IN_MAX_PLY || search_value2 > mate_in(params.mate_ply))
-                                keep = false;
-                        }
                     }
+
+                    // As a fallback if puzzle_depth is not set
+                    // we use the regular search to detect mate
+                    else if (search_value < VALUE_MATE_IN_MAX_PLY)
+                        keep = false;
 
                     if (keep)
                     {
@@ -402,12 +383,6 @@ namespace Stockfish::Tools
                         // Result is added after the whole game is done.
                         pos.sfen_pack(psv.sfen);
 
-                        // For check counting variants the training target should subtract the check bonus
-                        if (pos.check_counting())
-                        {
-                            search_value -=  6 * 1200 / (5 * pos.checks_remaining( pos.side_to_move()))
-                                           - 6 * 1200 / (5 * pos.checks_remaining(~pos.side_to_move()));
-                        }
                         psv.score = search_value;
                         psv.move = search_pv[0];
                         psv.gamePly = ply;
@@ -615,46 +590,8 @@ namespace Stockfish::Tools
                 // Normal random move
                 MoveList<LEGAL> list(pos);
 
-                // I don't really know the goodness and badness of making this the Apery method.
-                if (params.random_move_like_apery == 0
-                    || prng.rand(params.random_move_like_apery) != 0)
-                {
-                    // Normally one move from legal move
-                    random_move = list.at((size_t)prng.rand((uint64_t)list.size()));
-                }
-                else
-                {
-                    // if you can move the king, move the king
-                    Move moves[8]; // Near 8
-                    Move* p = &moves[0];
-                    for (auto& m : list)
-                    {
-                        if (type_of(pos.moved_piece(m)) == KING)
-                        {
-                            *(p++) = m;
-                        }
-                    }
-
-                    size_t n = p - &moves[0];
-                    if (n != 0)
-                    {
-                        // move to move the king
-                        random_move = moves[prng.rand(n)];
-
-                        // In Apery method, at this time there is a 1/2 chance
-                        // that the opponent will also move randomly
-                        if (prng.rand(2) == 0)
-                        {
-                            // Is it a simple hack to add a "1" next to random_move_flag[ply]?
-                            random_move_flag.insert(random_move_flag.begin() + ply + 1, 1, true);
-                        }
-                    }
-                    else
-                    {
-                        // Normally one move from legal move
-                        random_move = list.at((size_t)prng.rand((uint64_t)list.size()));
-                    }
-                }
+                // Normally one move from legal move
+                random_move = list.at((size_t)prng.rand((uint64_t)list.size()));
             }
             else
             {
@@ -697,9 +634,6 @@ namespace Stockfish::Tools
         uint64_t limit,
         Color result_color)
     {
-        if (float(draw_counter + 1) / (counter + 1) > params.write_out_draw_game_in_training_data_generation && result == 0)
-            return false;
-
         auto side_to_move_from_sfen = [](auto& sfen){
             return (Color)(sfen.sfen.data[0] & 1);
         };
@@ -826,8 +760,6 @@ namespace Stockfish::Tools
                 is >> params.random_move_maxply;
             else if (token == "random_move_count")
                 is >> params.random_move_count;
-            else if (token == "random_move_like_apery")
-                is >> params.random_move_like_apery;
             else if (token == "random_multi_pv")
                 is >> params.random_multi_pv;
             else if (token == "random_multi_pv_diff")
@@ -852,18 +784,10 @@ namespace Stockfish::Tools
                 is >> params.book;
             else if (token == "random_file_name")
                 is >> random_file_name;
-            else if (token == "keep_draws")
-                is >> params.write_out_draw_game_in_training_data_generation;
             else if (token == "adjudicate_draws_by_score")
                 is >> params.detect_draw_by_consecutive_low_score;
             else if (token == "adjudicate_draws_by_insufficient_material")
                 is >> params.detect_draw_by_insufficient_mating_material;
-            else if (token == "filter_captures")
-                is >> params.filter_captures;
-            else if (token == "filter_checks")
-                is >> params.filter_checks;
-            else if (token == "filter_promotions")
-                is >> params.filter_promotions;
             else if (token == "data_format")
                 is >> sfen_format;
             else if (token == "seed")
@@ -932,7 +856,6 @@ namespace Stockfish::Tools
             << "  - random_move_min_ply    = " << params.random_move_minply << endl
             << "  - random_move_max_ply    = " << params.random_move_maxply << endl
             << "  - random_move_count      = " << params.random_move_count << endl
-            << "  - random_move_like_apery = " << params.random_move_like_apery << endl
             << "  - random_multi_pv        = " << params.random_multi_pv << endl
             << "  - random_multi_pv_diff   = " << params.random_multi_pv_diff << endl
             << "  - random_multi_pv_depth  = " << params.random_multi_pv_depth << endl
@@ -943,12 +866,8 @@ namespace Stockfish::Tools
             << "  - save_every             = " << params.save_every << endl
             << "  - report_stats_every     = " << params.report_stats_every << endl
             << "  - random_file_name       = " << random_file_name << endl
-            << "  - keep_draws             = " << params.write_out_draw_game_in_training_data_generation << endl
             << "  - draw by low score      = " << params.detect_draw_by_consecutive_low_score << endl
-            << "  - draw by insuff. mat.   = " << params.detect_draw_by_insufficient_mating_material << endl
-            << "  - filter_captures        = " << params.filter_captures << endl
-            << "  - filter_checks          = " << params.filter_checks << endl
-            << "  - filter_promotions      = " << params.filter_promotions << endl;
+            << "  - draw by insuff. mat.   = " << params.detect_draw_by_insufficient_mating_material << endl;
 
         // Show if the training data generator uses NNUE.
         Eval::NNUE::verify();
