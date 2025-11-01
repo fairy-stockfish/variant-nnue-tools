@@ -2,6 +2,7 @@
 #define _SFEN_STREAM_H_
 
 #include "packed_sfen.h"
+#include "sfen_packer.h"
 
 #include <cassert>
 #include <optional>
@@ -13,7 +14,8 @@ namespace Stockfish::Tools {
 
     enum struct SfenOutputType
     {
-        Bin
+        Bin,
+        Epd
     };
 
     static bool ends_with(const std::string& lhs, const std::string& end)
@@ -111,6 +113,21 @@ namespace Stockfish::Tools {
         std::fstream m_stream;
     };
 
+    struct EpdSfenOutputStream : BasicSfenOutputStream
+    {
+        static constexpr auto openmode = std::ios::out | std::ios::app;
+        static inline const std::string extension = "epd";
+
+        EpdSfenOutputStream(std::string filename);
+
+        void write(const PSVector& sfens) override;
+
+        ~EpdSfenOutputStream() override {}
+
+    private:
+        std::fstream m_stream;
+    };
+
     inline std::unique_ptr<BasicSfenInputStream> open_sfen_input_file(const std::string& filename)
     {
         if (has_extension(filename, BinSfenInputStream::extension))
@@ -125,6 +142,8 @@ namespace Stockfish::Tools {
         {
             case SfenOutputType::Bin:
                 return std::make_unique<BinSfenOutputStream>(filename);
+            case SfenOutputType::Epd:
+                return std::make_unique<EpdSfenOutputStream>(filename);
         }
 
         assert(false);

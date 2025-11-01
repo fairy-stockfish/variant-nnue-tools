@@ -76,6 +76,6 @@ Currently the following options are available:
 
 `filter_promotions` - either 0 or 1. If 1 then positions where the best move is a promotion will be filtered out. Default: 0.
 
-`data_format` - format of the puzzle data to use. Only `bin` is supported. Default: `bin`.
+`data_format` - format of the puzzle data to use. Supported formats are `bin` (binary PackedSfenValue format) and `epd` (Extended Position Description, FEN strings). Default: `bin`.
 
 `seed` - seed for the PRNG. Can be either a number or a string. If it's a string then its hash will be used. If not specified then the current time will be used.

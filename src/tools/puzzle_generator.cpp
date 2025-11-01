@@ -888,6 +888,8 @@ namespace Stockfish::Tools
         {
             if (sfen_format == "bin")
                 params.sfen_format = SfenOutputType::Bin;
+            else if (sfen_format == "epd")
+                params.sfen_format = SfenOutputType::Epd;
             else
                 cout << "WARNING: Unknown sfen format `" << sfen_format << "`. Using bin\n";
         }
