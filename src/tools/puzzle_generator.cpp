@@ -95,7 +95,7 @@ namespace Stockfish::Tools
 
             std::string output_file_name = "puzzles";
 
-            SfenOutputType sfen_format = SfenOutputType::Bin;
+            SfenOutputType sfen_format = SfenOutputType::Epd;
 
             std::string seed;
 
@@ -783,7 +783,7 @@ namespace Stockfish::Tools
 
         // Add a random number to the end of the file name.
         bool random_file_name = false;
-        std::string sfen_format = "bin";
+        std::string sfen_format = "epd";
 
         string token;
         while (true)
