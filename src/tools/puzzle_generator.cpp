@@ -56,8 +56,11 @@ namespace Stockfish::Tools
             // Upper limit of evaluation value of generated situation
             int king_safety_limit = 64000;
             int material_limit = 64000;
+            int final_material_limit = 64000;
+            int material_diff_limit = 64000;
             int mate_ply = 1;
             int second_pv_limit = 1000;
+            int second_pv_nonroot_limit = VALUE_MATE_IN_MAX_PLY;
 
             // minimum ply with random move
             // maximum ply with random move
@@ -358,6 +361,61 @@ namespace Stockfish::Tools
                                     keep = false;
                             }
                         }
+
+                        const bool check_material_limits = params.final_material_limit < 64000
+                            || params.material_diff_limit < 64000;
+                        const bool check_recursive_uniqueness = params.second_pv_nonroot_limit < VALUE_MATE;
+
+                        if (keep
+                            && !search_pv2.empty()
+                            && (check_material_limits || check_recursive_uniqueness))
+                        {
+                            const Color initial_side = pos.side_to_move();
+                            const auto material_balance = [initial_side](const Position& position) {
+                                return mg_value(initial_side == WHITE ? position.psq_score()
+                                                                      : -position.psq_score());
+                            };
+
+                            const Value initial_material = material_balance(pos);
+
+                            std::vector<StateInfo, AlignedAllocator<StateInfo>> validation_states(search_pv2.size());
+                            size_t executed = 0;
+
+                            for (Move pv_move : search_pv2)
+                            {
+                                if (!is_ok(pv_move))
+                                    break;
+
+                                pos.do_move(pv_move, validation_states[executed]);
+                                ++executed;
+                            }
+
+                            Value final_material = material_balance(pos);
+                            Value material_delta = final_material - initial_material;
+
+                            if (   final_material > params.final_material_limit
+                                || material_delta > params.material_diff_limit)
+                                keep = false;
+
+                            while (executed > 0)
+                            {
+                                if (keep
+                                    && check_recursive_uniqueness
+                                    && pos.side_to_move() == initial_side)
+                                {
+                                    int depth_remaining = std::max(1, params.puzzle_depth - static_cast<int>(executed) / 2);
+                                    auto [nested_value, nested_pv] = Search::search(pos, depth_remaining, 2, 0);
+                                    auto& nested_rm = pos.this_thread()->rootMoves;
+                                    if (nested_rm.size() >= 2)
+                                    {
+                                        Value second_value = nested_rm[1].score;
+                                        if (second_value >= params.second_pv_nonroot_limit)
+                                            keep = false;
+                                    }
+                                }
+                                pos.undo_move(search_pv2[--executed]);
+                            }
+                        }
                     }
 
                     // As a fallback if puzzle_depth is not set
@@ -653,7 +711,7 @@ namespace Stockfish::Tools
             sfen_writer.write(th.id(), sfen);
         }
 
-        return false;
+        return counter.load(std::memory_order_relaxed) >= limit;
     }
 
     void PuzzleGenerator::report(uint64_t done, uint64_t draws, uint64_t new_done)
@@ -738,10 +796,16 @@ namespace Stockfish::Tools
                 is >> params.king_safety_limit;
             else if (token == "material_limit")
                 is >> params.material_limit;
+            else if (token == "final_material_limit")
+                is >> params.final_material_limit;
+            else if (token == "material_diff_limit")
+                is >> params.material_diff_limit;
             else if (token == "mate_ply")
                 is >> params.mate_ply;
             else if (token == "second_pv_limit")
                 is >> params.second_pv_limit;
+            else if (token == "second_pv_nonroot_limit")
+                is >> params.second_pv_nonroot_limit;
             else if (token == "random_move_min_ply")
                 is >> params.random_move_minply;
             else if (token == "random_move_max_ply")
@@ -839,8 +903,11 @@ namespace Stockfish::Tools
             << "  - count                  = " << loop_max << endl
             << "  - king_safety_limit      = " << params.king_safety_limit << endl
             << "  - material_limit         = " << params.material_limit << endl
+            << "  - final_material_limit   = " << params.final_material_limit << endl
+            << "  - material_diff_limit    = " << params.material_diff_limit << endl
             << "  - mate_ply               = " << params.mate_ply << endl
             << "  - second_pv_limit        = " << params.second_pv_limit << endl
+            << "  - second_pv_nonroot_limit = " << params.second_pv_nonroot_limit << endl
             << "  - num threads (UCI)      = " << params.num_threads << endl
             << "  - random_move_min_ply    = " << params.random_move_minply << endl
             << "  - random_move_max_ply    = " << params.random_move_maxply << endl

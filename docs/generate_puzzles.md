@@ -32,9 +32,15 @@ Currently the following options are available:
 
 `material_limit` - maximum allowed material advantage. Positions with material imbalance exceeding this value are filtered out. Default: 64000 (effectively disabled).
 
+`final_material_limit` - maximum allowed material imbalance after playing the validation PV. Helps avoid puzzles where the mating line ends with overwhelming extra material. Default: 64000 (effectively disabled).
+
+`material_diff_limit` - maximum allowed absolute change in material imbalance between the candidate position and the final position reached by the validation PV. Default: 64000 (effectively disabled).
+
 `mate_ply` - only keep positions with mate in at least this many plies. Filters out mates that are too short. When using `puzzle_depth` it applies to this validation search, otherwise uses the regular search result. Default: 1.
 
 `second_pv_limit` - uses multipv 2 during puzzle verification and filters out positions where the second best line's evaluation is greater than or equal to this value (in centipawns). This helps ensure puzzle positions have a clear best solution by filtering out positions with strong alternative moves. Set to a value >= 32000 (VALUE_MATE) to disable this check. Default: 1000.
+
+`second_pv_nonroot_limit` - when validating the PV recursively, re-search positions where the attacking side is to move again. If the second-best move at any of those points evaluates above this limit, the puzzle is rejected. The search depth shrinks as the PV progresses. Set to a value >= 32000 (VALUE_MATE) to disable. Default: VALUE_MATE_IN_MAX_PLY.
 
 `random_move_min_ply` - the minimal ply at which a random move may be executed instead of a move chosen by search. Default: 1.
 
