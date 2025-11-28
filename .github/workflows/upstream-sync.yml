@@ -29,6 +29,7 @@ jobs:
     name: Sync latest commits from upstream repo
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       # Step 1: Checkout target repo
@@ -49,6 +50,7 @@ jobs:
       # Step 3: Sync upstream changes
       - name: Sync upstream changes
         id: sync
+        continue-on-error: true
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.4.1
         with:
           target_sync_branch: tools
@@ -60,9 +62,92 @@ jobs:
 
       # Step 4: Display sync status
       - name: New commits found
-        if: steps.sync.outputs.has_new_commits == 'true'
+        if: steps.sync.outputs.has_new_commits == 'true' && steps.sync.outcome == 'success'
         run: echo "New commits were found and synced from upstream."
-      
+
       - name: No new commits
-        if: steps.sync.outputs.has_new_commits == 'false'
+        if: steps.sync.outputs.has_new_commits == 'false' && steps.sync.outcome == 'success'
         run: echo "Repository is already up to date with upstream."
+
+      # Step 5: Handle merge conflicts by creating a PR
+      - name: Check for merge conflicts
+        if: steps.sync.outcome == 'failure'
+        id: conflict_check
+        run: |
+          # Check if we have a merge in progress or conflicts
+          if git status | grep -q "You have unmerged paths\|Unmerged paths\|both modified"; then
+            echo "has_conflicts=true" >> $GITHUB_OUTPUT
+            echo "Merge conflicts detected"
+          else
+            echo "has_conflicts=false" >> $GITHUB_OUTPUT
+            echo "Sync failed but no conflicts detected"
+            exit 1
+          fi
+
+      - name: Create PR for conflict resolution
+        if: steps.conflict_check.outputs.has_conflicts == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          # Create a unique branch name for the conflict resolution
+          CONFLICT_BRANCH="upstream-sync-conflicts-$(date +%Y%m%d-%H%M%S)"
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create and checkout new branch
+          git checkout -b "$CONFLICT_BRANCH"
+
+          # Add all files (including conflicted ones)
+          git add -A
+
+          # Commit the conflicted state
+          git commit -m "Upstream sync: merge conflicts from $(date +%Y-%m-%d)
+
+          This automated merge from upstream (fairy-stockfish/Fairy-Stockfish master) has conflicts.
+          Please resolve the conflicts and merge this PR to complete the sync.
+
+          Automated by upstream-sync workflow."
+
+          # Push the branch
+          git push -u origin "$CONFLICT_BRANCH"
+
+          # Create PR using gh CLI
+          gh pr create \
+            --base tools \
+            --head "$CONFLICT_BRANCH" \
+            --title "🔀 Upstream sync: Resolve merge conflicts ($(date +%Y-%m-%d))" \
+            --body "$(cat <<'EOF'
+          ## Automated Upstream Sync - Merge Conflicts Detected
+
+          This PR was automatically created because the weekly upstream sync encountered merge conflicts.
+
+          **Upstream**: \`fairy-stockfish/Fairy-Stockfish\` (master branch)
+          **Target**: \`tools\` branch
+
+          ### What to do:
+          1. Review the conflicts in the "Files changed" tab
+          2. Resolve conflicts locally or use GitHub's conflict editor
+          3. Ensure tests pass after resolution
+          4. Merge this PR to complete the upstream sync
+
+          ### Conflicts
+          The following files have merge conflicts that need to be resolved:
+
+          $(git diff --name-only --diff-filter=U | sed 's/^/- /')
+
+          ---
+          *This PR was automatically created by the upstream-sync workflow*
+          EOF
+          )" \
+            --label "upstream-sync,merge-conflict"
+
+          echo "✅ Created PR for conflict resolution on branch: $CONFLICT_BRANCH"
+
+      - name: Sync failed without conflicts
+        if: steps.sync.outcome == 'failure' && steps.conflict_check.outputs.has_conflicts == 'false'
+        run: |
+          echo "❌ Upstream sync failed for reasons other than merge conflicts"
+          echo "Please check the logs above for details"
+          exit 1
