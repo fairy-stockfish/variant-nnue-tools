@@ -462,10 +462,19 @@ namespace Stockfish::Tools
             return v > 0 ? 1 : v < 0 ? -1 : 0;
         };
 
-        // has it reached the max length or is a draw by fifty-move rule
-        // or by 3-fold repetition
+        auto adjudicated_draw_result = [&]() {
+            return pos.material_counting() ? sign(pos.material_counting_result()) : 0;
+        };
+
+        // has it reached the max length
+        if (ply >= params.write_maxply)
+        {
+            return adjudicated_draw_result();
+        }
+
+        // is it a draw by fifty-move rule or by 3-fold repetition
         Value v = VALUE_DRAW;
-        if (ply >= params.write_maxply || pos.is_game_end(v))
+        if (pos.is_game_end(v))
         {
             return sign(v);
         }
@@ -508,7 +517,7 @@ namespace Stockfish::Tools
 
                 if (is_adj_draw)
                 {
-                    return 0;
+                    return adjudicated_draw_result();
                 }
             }
         }
@@ -518,7 +527,7 @@ namespace Stockfish::Tools
             && has_insufficient_material(WHITE, pos)
             && has_insufficient_material(BLACK, pos))
         {
-            return 0;
+            return adjudicated_draw_result();
         }
 
         return nullopt;
