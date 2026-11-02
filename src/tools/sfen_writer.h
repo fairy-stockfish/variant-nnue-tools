@@ -27,6 +27,7 @@ namespace Stockfish::Tools {
         {
             sfen_buffers_pool.reserve((size_t)thread_num * 10);
             sfen_buffers.resize(thread_num);
+            sfen_buffer_mutexes = std::make_unique<std::mutex[]>(thread_num);
             periodic_flush_interval = std::chrono::minutes(1);
             last_periodic_flush = std::chrono::steady_clock::now();
 
@@ -66,28 +67,38 @@ namespace Stockfish::Tools {
             // We have a buffer for each thread and add it there.
             // If the buffer overflows, write it to a file.
 
-            // This buffer is prepared for each thread.
-            auto& buf = sfen_buffers[thread_id];
+            std::unique_ptr<PSVector> full_buf;
 
-            // Secure since there is no buf at the first time
-            // and immediately after writing the thread buffer.
-            if (!buf)
             {
-                buf = std::make_unique<PSVector>();
-                buf->reserve(sfen_write_size);
+                // The buffer is owned by this thread, but the file worker thread
+                // may take it away for a periodic flush, so it has to be locked.
+                // This lock is practically uncontended.
+                std::unique_lock<std::mutex> lk(sfen_buffer_mutexes[thread_id]);
+
+                // This buffer is prepared for each thread.
+                auto& buf = sfen_buffers[thread_id];
+
+                // Secure since there is no buf at the first time
+                // and immediately after writing the thread buffer.
+                if (!buf)
+                {
+                    buf = std::make_unique<PSVector>();
+                    buf->reserve(sfen_write_size);
+                }
+
+                buf->push_back(psv);
+
+                if (buf->size() >= sfen_write_size)
+                    full_buf = std::move(buf);
             }
 
-            // Buffer is exclusive to this thread.
-            // There is no need for a critical section.
-            buf->push_back(psv);
-
-            if (buf->size() >= sfen_write_size)
+            if (full_buf)
             {
                 // If you load it in sfen_buffers_pool, the worker will do the rest.
 
                 // Critical section since sfen_buffers_pool is shared among threads.
                 std::unique_lock<std::mutex> lk(mutex);
-                sfen_buffers_pool.emplace_back(std::move(buf));
+                sfen_buffers_pool.emplace_back(std::move(full_buf));
             }
         }
 
@@ -102,13 +113,18 @@ namespace Stockfish::Tools {
         // Move what remains in the buffer for your thread to a buffer for writing to a file.
         void flush(size_t thread_id)
         {
-            std::unique_lock<std::mutex> lk(mutex);
-
-            auto& buf = sfen_buffers[thread_id];
-
-            // There is a case that buf==nullptr, so that check is necessary.
-            if (buf && buf->size() != 0)
+            std::unique_ptr<PSVector> buf;
             {
+                std::unique_lock<std::mutex> lk(sfen_buffer_mutexes[thread_id]);
+
+                // There is a case that buf==nullptr, so that check is necessary.
+                if (sfen_buffers[thread_id] && sfen_buffers[thread_id]->size() != 0)
+                    buf = std::move(sfen_buffers[thread_id]);
+            }
+
+            if (buf)
+            {
+                std::unique_lock<std::mutex> lk(mutex);
                 sfen_buffers_pool.emplace_back(std::move(buf));
             }
         }
@@ -118,21 +134,20 @@ namespace Stockfish::Tools {
         {
             while (!finished || sfen_buffers_pool.size())
             {
+                // Periodically move the partially filled per-thread buffers
+                // to the pool so that rarely produced data gets written too.
+                // This must not be done while holding the pool mutex,
+                // see the lock order in write().
+                const auto now = std::chrono::steady_clock::now();
+                if (now - last_periodic_flush >= periodic_flush_interval)
+                {
+                    flush();
+                    last_periodic_flush = now;
+                }
+
                 std::vector<std::unique_ptr<PSVector>> buffers;
                 {
                     std::unique_lock<std::mutex> lk(mutex);
-
-                    const auto now = std::chrono::steady_clock::now();
-                    if (now - last_periodic_flush >= periodic_flush_interval)
-                    {
-                        for (auto& buf : sfen_buffers)
-                        {
-                            if (buf && buf->size())
-                                sfen_buffers_pool.emplace_back(std::move(buf));
-                        }
-
-                        last_periodic_flush = now;
-                    }
 
                     // Atomically swap take the filled buffers and
                     // create a new buffer pool for threads to fill.
@@ -201,12 +216,15 @@ namespace Stockfish::Tools {
         // After loading the phase in the former buffer by SFEN_WRITE_SIZE,
         // transfer it to the latter.
         std::vector<std::unique_ptr<PSVector>> sfen_buffers;
+        // Mutexes guarding the per-thread buffers in sfen_buffers
+        std::unique_ptr<std::mutex[]> sfen_buffer_mutexes;
         std::vector<std::unique_ptr<PSVector>> sfen_buffers_pool;
 
         std::chrono::steady_clock::duration periodic_flush_interval;
         std::chrono::steady_clock::time_point last_periodic_flush;
 
-        // Mutex required to access sfen_buffers_pool
+        // Mutex required to access sfen_buffers_pool.
+        // Never acquire a mutex in sfen_buffer_mutexes while holding this one.
         std::mutex mutex;
 
         // Number of sfens written in total, and the
