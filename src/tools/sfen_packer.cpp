@@ -354,31 +354,46 @@ namespace Stockfish::Tools {
 
         // Castling availability.
         // TODO(someone): Support chess960.
+        // The castling king square has to be set before set_castling_right(),
+        // otherwise castling rights, castling paths and the castling move
+        // generation would refer to a wrong king square (SQ_A1).
         pos.st->castlingRights = 0;
-        if (stream.read_one_bit()) {
-            Square rsq;
-            for (rsq = relative_square(WHITE, SQ_H1); pos.piece_on(rsq) != W_ROOK; --rsq) {}
-            pos.set_castling_right(WHITE, rsq);
-        }
-        if (stream.read_one_bit()) {
-            Square rsq;
-            for (rsq = relative_square(WHITE, SQ_A1); pos.piece_on(rsq) != W_ROOK; ++rsq) {}
-            pos.set_castling_right(WHITE, rsq);
-        }
-        if (stream.read_one_bit()) {
-            Square rsq;
-            for (rsq = relative_square(BLACK, SQ_H1); pos.piece_on(rsq) != B_ROOK; --rsq) {}
-            pos.set_castling_right(BLACK, rsq);
-        }
-        if (stream.read_one_bit()) {
-            Square rsq;
-            for (rsq = relative_square(BLACK, SQ_A1); pos.piece_on(rsq) != B_ROOK; ++rsq) {}
-            pos.set_castling_right(BLACK, rsq);
-        }
+        pos.st->castlingKingSquare[WHITE] = pos.st->castlingKingSquare[BLACK] = SQ_NONE;
+        for (Color c : { WHITE, BLACK })
+            for (bool kingSide : { true, false })
+            {
+                if (!stream.read_one_bit() || !pos.castling_enabled())
+                    continue;
+
+                const Rank castlingRank = pos.castling_rank(c);
+                Bitboard castlingKings = pos.pieces(c, pos.castling_king_piece(c)) & rank_bb(castlingRank);
+                if (pos.st->castlingKingSquare[c] == SQ_NONE)
+                {
+                    Square ksq = more_than_one(castlingKings) ? make_square(pos.castling_king_file(), castlingRank)
+                                                               : castlingKings ? lsb(castlingKings) : SQ_NONE;
+                    if (ksq == SQ_NONE || !(castlingKings & ksq))
+                        continue;
+                    pos.st->castlingKingSquare[c] = ksq;
+                }
+
+                auto is_castling_rook = [&](Square s) {
+                    Piece pc = pos.piece_on(s);
+                    return pc != NO_PIECE && color_of(pc) == c && (pos.castling_rook_pieces(c) & type_of(pc));
+                };
+
+                Square rsq;
+                if (kingSide)
+                    for (rsq = make_square(pos.variant()->castlingRookKingsideFile, castlingRank); !is_castling_rook(rsq) && file_of(rsq) > FILE_A; --rsq) {}
+                else
+                    for (rsq = make_square(pos.variant()->castlingRookQueensideFile, castlingRank); !is_castling_rook(rsq) && file_of(rsq) < pos.max_file(); ++rsq) {}
+
+                if (is_castling_rook(rsq))
+                    pos.set_castling_right(c, rsq);
+            }
 
         // En passant square.
         if (stream.read_one_bit()) {
-            Square ep_square = static_cast<Square>(stream.read_n_bit(7));
+            Square ep_square = from_variant_square(static_cast<Square>(stream.read_n_bit(7)), pos);
             pos.st->epSquares = square_bb(ep_square);
         }
         else {
