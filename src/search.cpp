@@ -820,7 +820,6 @@ namespace {
         if (    piecesCount <= thisThread->Cardinality
             && (piecesCount <  thisThread->Cardinality || depth >= thisThread->ProbeDepth)
             &&  pos.rule50_count() == 0
-            &&  Options["UCI_Variant"] == "chess"
             && !pos.can_castle(ANY_CASTLING))
         {
             Tablebases::ProbeState err;
