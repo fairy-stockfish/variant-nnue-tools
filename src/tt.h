@@ -94,6 +94,12 @@ public:
 
   static bool enable_transposition_table;
 
+  // Allows to bypass the TT for searches of the current thread only,
+  // e.g., to get a qsearch value that is independent of previous searches.
+  static thread_local bool disabled_in_thread;
+
+  static bool enabled() { return enable_transposition_table && !disabled_in_thread; }
+
 private:
   friend struct TTEntry;
 

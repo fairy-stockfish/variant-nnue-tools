@@ -112,7 +112,8 @@ namespace Stockfish::Tools
 
                 num_threads = Options["Threads"];
 
-                random_multi_pv_depth = std::max(search_depth_max, random_multi_pv_depth);
+                if (random_multi_pv_depth <= 0)
+                    random_multi_pv_depth = search_depth_max;
             }
         };
 
@@ -637,7 +638,7 @@ namespace Stockfish::Tools
             }
             else
             {
-                Search::search(pos, params.random_multi_pv_depth, params.random_multi_pv);
+                Search::search(pos, params.random_multi_pv_depth, params.random_multi_pv, params.nodes);
 
                 // Select one from the top N hands of root Moves
                 auto& rm = pos.this_thread()->rootMoves;

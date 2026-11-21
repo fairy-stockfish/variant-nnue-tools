@@ -2234,6 +2234,14 @@ namespace Search
 
     ss->pv = pv; // For the time being, it must be a dummy and somewhere with a buffer.
 
+    // Do not use the TT in qsearch. Otherwise the stand pat value can be replaced
+    // by TT values of previous deeper searches (e.g., of the parent position),
+    // so the result would not be a pure quiescence search value.
+    struct TTDisabler {
+      TTDisabler() { TranspositionTable::disabled_in_thread = true; }
+      ~TTDisabler() { TranspositionTable::disabled_in_thread = false; }
+    } ttDisabler;
+
     if (pos.is_optional_game_end()) {
       // Return draw value if draw.
       return { VALUE_DRAW, {} };
