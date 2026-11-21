@@ -31,13 +31,14 @@ namespace Stockfish {
 TranspositionTable TT; // Our global transposition table
 
 bool TranspositionTable::enable_transposition_table = true;
+thread_local bool TranspositionTable::disabled_in_thread = false;
 
 /// TTEntry::save() populates the TTEntry with a new node's data, possibly
 /// overwriting an old position. Update is not atomic and can be racy.
 
 void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev) {
 
-  if (!TranspositionTable::enable_transposition_table) {
+  if (!TranspositionTable::enabled()) {
       return;
   }
   // Preserve any existing move for the same position
@@ -124,7 +125,7 @@ void TranspositionTable::clear() {
 
 TTEntry* TranspositionTable::probe(const Key key, bool& found) const {
 
-  if (!enable_transposition_table) {
+  if (!enabled()) {
       found = false;
       return first_entry(0);
   }

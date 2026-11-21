@@ -40,7 +40,7 @@ Currently the following options are available:
 
 `random_multi_pv_diff` - Makes the multiPV random move selection consider only moves that are at most `random_multi_pv_diff` worse than the next best move. Default: 100.
 
-`random_multi_pv_depth` - the depth to use for multiPV search for random move. Default: `depth2`.
+`random_multi_pv_depth` - the depth to use for multiPV search for random move. The `nodes` limit (if specified) also applies to this search. Default: `max_depth`.
 
 `write_min_ply` - minimum ply for which the training data entry will be emitted. Default: 5.
 
