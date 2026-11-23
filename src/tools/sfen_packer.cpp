@@ -91,6 +91,11 @@ namespace Stockfish::Tools {
     // En passant square (1 or 1 + 6 bits)
     // Rule 50 (6 bits)
     // Game play (8 bits)
+    // Game play high bits (8 bits)
+    // Rule 50 high bit (1 bit)
+    // Check counting variants only: presence flag (1 bit) and the remaining
+    // checks of white and black (4 bits each). Older data has a zero flag bit
+    // here, in which case unpacking falls back to the variant's starting counts.
     //
     // TODO(someone): Rename SFEN to FEN.
     //
@@ -162,6 +167,32 @@ namespace Stockfish::Tools {
         {0b11111,5}, //
     };
 
+    // Bits used for the optional check counter field (flag + 2 counters)
+    constexpr int CHECK_COUNT_FIELD_BITS = 4;
+    constexpr int CHECK_COUNT_BITS = 1 + 2 * CHECK_COUNT_FIELD_BITS;
+    static_assert(CHECKS_NB <= (1 << CHECK_COUNT_FIELD_BITS), "Check count field too small");
+
+    // Remaining checks in the starting position of the variant. Used as a fallback
+    // for packed positions that do not contain the check counters (older data).
+    static void starting_checks(const Variant* v, CheckCount checks[COLOR_NB])
+    {
+        thread_local const Variant* cachedVariant = nullptr;
+        thread_local CheckCount cachedChecks[COLOR_NB] = { CHECKS_0, CHECKS_0 };
+
+        if (v != cachedVariant)
+        {
+            StateInfo st;
+            Position p;
+            p.set(v, v->startFen, false, &st, nullptr);
+            for (Color c : { WHITE, BLACK })
+                cachedChecks[c] = p.checks_remaining(c);
+            cachedVariant = v;
+        }
+
+        for (Color c : { WHITE, BLACK })
+            checks[c] = cachedChecks[c];
+    }
+
     inline Square to_variant_square(Square s, const Position& pos) {
         return Square(s - rank_of(s) * (FILE_MAX - pos.max_file()));
     }
@@ -230,6 +261,16 @@ namespace Stockfish::Tools {
         // compatible fix for rule50 having only 6 bits stored.
         // This bit is just ignored by the old parsers.
         stream.write_n_bit(pos.state()->rule50 >> 6, 1);
+
+        // Remaining checks for check counting variants. This is appended at the end
+        // for backwards compatibility: old data has a zero flag bit here.
+        if (pos.check_counting() && stream.get_cursor() + CHECK_COUNT_BITS <= DATA_SIZE)
+        {
+            stream.write_one_bit(1);
+            for (Color c : { WHITE, BLACK })
+                stream.write_n_bit(std::min(int(pos.checks_remaining(c)), (1 << CHECK_COUNT_FIELD_BITS) - 1),
+                                   CHECK_COUNT_FIELD_BITS);
+        }
 
         assert(stream.get_cursor() <= DATA_SIZE);
     }
@@ -419,6 +460,18 @@ namespace Stockfish::Tools {
         // Convert from fullmove starting from 1 to gamePly starting from 0,
         // handle also common incorrect FEN with fullmove = 0.
         pos.gamePly = std::max(2 * (pos.gamePly - 1), 0) + (pos.sideToMove == BLACK);
+
+        // Remaining checks for check counting variants. Data written before the
+        // counters were stored has a zero flag bit, so fall back to the starting counts.
+        if (pos.check_counting())
+        {
+            if (   stream.get_cursor() + CHECK_COUNT_BITS <= DATA_SIZE
+                && stream.read_one_bit())
+                for (Color c : { WHITE, BLACK })
+                    pos.st->checksRemaining[c] = CheckCount(stream.read_n_bit(CHECK_COUNT_FIELD_BITS));
+            else
+                starting_checks(pos.variant(), pos.st->checksRemaining);
+        }
 
         assert(stream.get_cursor() <= DATA_SIZE);
 
